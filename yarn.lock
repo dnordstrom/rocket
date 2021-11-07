@@ -1094,6 +1094,13 @@
     globby "^11.0.4"
     typescript "^4.3.2"
 
+"@custom-elements-manifest/find-dependencies@0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@custom-elements-manifest/find-dependencies/-/find-dependencies-0.0.4.tgz#986b3e4d7f3e83fe07a68d153c7e2953abc25bab"
+  integrity sha512-D+ny//a4smbNl+USxXRw1V4sjJWBe/qG6ckVvAC+stTT2s3fVWYjXhILZnnWr4/y7dfAZXcYg4NQBIxN6QlfGA==
+  dependencies:
+    es-module-lexer "^0.9.3"
+
 "@custom-elements-manifest/to-markdown@^0.0.12":
   version "0.0.12"
   resolved "https://registry.yarnpkg.com/@custom-elements-manifest/to-markdown/-/to-markdown-0.0.12.tgz#9aae0271636a5300c8d95e6cb8b83c0d74d52747"
@@ -4040,7 +4047,7 @@ es-module-lexer@^0.3.26:
   resolved "https://registry.yarnpkg.com/es-module-lexer/-/es-module-lexer-0.3.26.tgz#7b507044e97d5b03b01d4392c74ffeb9c177a83b"
   integrity sha512-Va0Q/xqtrss45hWzP8CZJwzGSZJjDM5/MJRE3IXXnUCcVLElR9BRaE9F62BopysASyc4nM3uwhSW7FFB9nlWAA==
 
-es-module-lexer@^0.9.0:
+es-module-lexer@^0.9.0, es-module-lexer@^0.9.3:
   version "0.9.3"
   resolved "https://registry.yarnpkg.com/es-module-lexer/-/es-module-lexer-0.9.3.tgz#6f13db00cc38417137daf74366f535c8eb438f19"
   integrity sha512-1HQ2M2sPtxwnvOvT1ZClHyQDiggdNjURWpY2we6aMKCQiUVxTmVs2UYPLIrD84sS+kMdUwfBSylbJPwNnBrnHQ==

@@ -1,0 +1,42 @@
+{
+  "name": "@rocket/engine",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A fast low dependency engine renderer for html sites",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/modernweb-dev/rocket.git",
+    "directory": "packages/engine"
+  },
+  "author": "Modern Web <hello@modern-web.dev> (https://modern-web.dev/)",
+  "homepage": "https://rocket.modern-web.dev/docs/tools/web-menu/",
+  "main": "./index.js",
+  "bin": {
+    "web-menu": "src/cli.js"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "mocha --timeout 5000 test-node/**/*.test.{js,cjs} test-node/*.test.{js,cjs}",
+    "test:watch": "onchange 'src/**/*.{js,cjs}' 'test-node/**/*.{js,cjs}' -- npm test",
+    "types:copy": "copyfiles \"./types/**/*.d.ts\" dist-types/"
+  },
+  "files": [
+    "*.js",
+    "dist",
+    "dist-types",
+    "preset",
+    "src"
+  ],
+  "dependencies": {
+    "@custom-elements-manifest/find-dependencies": "0.0.4",
+    "es-module-lexer": "^0.9.3",
+    "plugins-manager": "^0.3.0"
+  },
+  "types": "dist-types/index.d.ts"
+}

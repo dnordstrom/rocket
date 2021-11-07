@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { processContentWithTitle } = require('@rocket/core/title');
 const { createSocialImage: defaultCreateSocialImage } = require('./createSocialImage.cjs');
 const { getComputedConfig } = require('./computedConfig.cjs');
 const { executeSetupFunctions } = require('plugins-manager');
