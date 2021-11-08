@@ -1,5 +1,5 @@
 import { Position } from 'sax-wasm';
-import { Node } from 'tree-model';
+import { Node, Model } from '@d4kmor/tree-model';
 import { Menu } from '../src/Menu.js';
 import { MetaPlugin } from 'plugins-manager';
 
@@ -7,16 +7,35 @@ import { MetaPlugin } from 'plugins-manager';
 // PARSING
 //
 
-class Page {
-  level: string;
+type Page = {
+  name: string;
+  level: number;
   url: string;
-  children: Node<Page>;
+  children?: Node<Page>;
   order?: number;
   active?: boolean;
+  current?: boolean;
+  relPath?: string;
   // tableOfContentsNode
 }
 
 export type NodeOfPage = Node<Page>;
+export type ModelOfPage = Model<Page>;
+
+
+type A = Node<Page>;
+type B = NodeOfPage;
+
+type C = Page;
+type D = A['model']['level']
+type E = B['model']['level']
+
+
+type A = Model<{ a: 1, deps: [{ a: 2}] }, 'deps'>;
+// type B = A['deps'][number]['a'];
+// type D = Model<{ b: 2 }>;
+// type E = D['children'][number]['b'];
+
 
 export interface MenuParsed {
   name: string;

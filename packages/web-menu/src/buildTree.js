@@ -1,24 +1,27 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { existsSync } from 'fs';
 import { readdir } from 'fs/promises';
-import TreeModel from 'tree-model';
+import { TreeModel } from '@d4kmor/tree-model';
 import path from 'path';
 import { parseHtmlFile } from './parseHtmlFile.js';
 
 /** @typedef {import('../types/main').Page} Page */
 /** @typedef {import('../types/main').ParseMetaData} ParseMetaData */
+/** @typedef {import('../types/main').NodeOfPage} NodeOfPage */
+/** @typedef {import('../types/main').ModelOfPage} ModelOfPage */
 
 /**
- * @param {Page} a
- * @param {Page} b
- * @returns
+ * @param {ModelOfPage} a
+ * @param {ModelOfPage} b
+ * @returns {number}
  */
 export function modelComparatorFn(a, b) {
   const aOrder = a.order || 0;
   const bOrder = b.order || 0;
-  return aOrder > bOrder;
+  return aOrder - bOrder;
 }
 
+/** @type {TreeModel<Page>} */
 const tree = new TreeModel({
   modelComparatorFn,
 });
@@ -73,7 +76,7 @@ function processTocElements(metaData) {
  * @param {object} process
  * @param {string} process.filePath
  * @param {string} process.rootDir
- * @param {TreeModel.Node<Page>} [process.currentNode]
+ * @param {NodeOfPage} [process.currentNode]
  * @param {boolean} [process.recursive]
  * @param {object} options
  * @param {string} [options.mode]
@@ -103,7 +106,7 @@ async function processFile({ filePath, rootDir, currentNode, recursive = false }
 
 /**
  * @param {string} inRootDir
- * @param {TreeModel.Node<Page>} [node]
+ * @param {NodeOfPage} [node]
  * @param {object} [options]
  * @param {string} [options.mode]
  * @param {number} [options.level]

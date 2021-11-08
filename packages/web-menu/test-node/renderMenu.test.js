@@ -1,7 +1,7 @@
 import chai from 'chai';
 import { findCurrentNode, Menu } from '../index.js';
 
-import TreeModel from 'tree-model';
+import { TreeModel } from '@d4kmor/tree-model';
 
 import { formatHtml } from './test-helpers.js';
 

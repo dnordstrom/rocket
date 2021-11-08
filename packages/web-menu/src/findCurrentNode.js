@@ -1,4 +1,4 @@
-/** @typedef {import('..//types/main').NodeOfPage} NodeOfPage */
+/** @typedef {import('../types/main').NodeOfPage} NodeOfPage */
 
 /**
  * @param {NodeOfPage} node

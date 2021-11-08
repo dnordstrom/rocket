@@ -3,7 +3,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import { dirname, join } from 'path';
 
 /** @typedef {import('../types/main').Page} Page */
-/** @typedef {import('tree-model/types').Node<Page>} NodeOfPage */
+/** @typedef {import('@d4kmor/tree-model').Node<Page>} NodeOfPage */
 
 /**
  * @param {NodeOfPage} tree

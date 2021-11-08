@@ -1,6 +1,6 @@
 import chai from 'chai';
 import { executeBuildTree, cleanup, modelComparatorFn } from './test-helpers.js';
-import TreeModel from 'tree-model';
+import { TreeModel } from '@d4kmor/tree-model';
 
 const { expect } = chai;
 const treeModel = new TreeModel({ modelComparatorFn });

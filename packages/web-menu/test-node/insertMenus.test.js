@@ -1,5 +1,5 @@
 import chai from 'chai';
-import TreeModel from 'tree-model';
+import { TreeModel } from '@d4kmor/tree-model';
 import { insertMenus } from '../src/insertMenus.js';
 import { Site } from '../src/menus/Site.js';
 import { formatHtml } from './test-helpers.js';
