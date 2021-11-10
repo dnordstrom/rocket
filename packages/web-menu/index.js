@@ -4,3 +4,5 @@ export { WebMenuCli } from './src/WebMenuCli.js';
 export { webMenu } from './preset/webMenu.js';
 export { Menu } from './src/Menu.js';
 export { IndexMenu } from './src/menus/IndexMenu.js';
+export { Site } from './src/menus/Site.js';
+export { parseHtmlFile } from './src/parseHtmlFile.js';

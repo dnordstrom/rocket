@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
 /** @typedef {import('../types/main').EngineOptions} EngineOptions */
-import fs from 'fs';
-import { mkdir } from 'fs/promises';
+import fs, { exists, existsSync } from 'fs';
+import { mkdir, writeFile, readFile } from 'fs/promises';
 import path from 'path';
 import { EventEmitter } from 'events';
 
@@ -13,6 +13,10 @@ import { cleanupWorker, renderViaWorker } from './renderViaWorker.js';
 import { debounce } from './helpers/debounce.js';
 import { updateRocketHeader } from './updateRocketHeader.js';
 import { Watcher } from './Watcher.js';
+
+import { parseHtmlFile } from '@web/menu';
+import { getHtmlMetaData } from './getHtmlMetaData.js';
+import { pathToUrl } from './urlPathConverter.js';
 
 export class Engine {
   /** @type {EngineOptions} */
@@ -65,12 +69,85 @@ export class Engine {
     }
 
     // write files
-    const files = await gatherFiles(this.docsDir);
+    const sourceFiles = await gatherFiles(this.docsDir);
+    const pages = [];
+    for (const sourceFilePath of sourceFiles) {
+      await updateRocketHeader(sourceFilePath, this.docsDir);
+      const { outputWriteFilePath, relativeFilePath } = await this.renderFile(sourceFilePath);
 
-    for (const filePath of files) {
-      await updateRocketHeader(filePath, this.docsDir);
-      await this.renderFile(filePath);
+      // console.log({ outputWriteFilePath, relativeFilePath })
+
+      const needsRerender = await this.updatePageTreeModel({
+        outputFilePath: outputWriteFilePath,
+        relativeFilePath,
+      });
+      pages.push({
+        sourceFilePath,
+        outputFilePath: outputWriteFilePath,
+        relativeFilePath,
+        needsRerender,
+      });
     }
+
+    // we have two loops her without it every render would need a new worker (due tue the rerendering) which is expensive
+    for (const page of pages) {
+      if (page.needsRerender) {
+        //
+      }
+      // const needsRerender = await this.updatePageTreeModel(page);
+      // if (needsRerender) {
+      //   // await this.renderFile(outputFilePath);
+      // }
+    }
+  }
+
+  async updatePageTreeModel(page) {
+    function findParent(child, tree) {
+      return tree.first(node => {
+        return child.url.startsWith(node.model.url) && node.model.level === child.level - 1;
+      });
+    }
+
+    async function readJsonFile(filePath) {
+      const content = await readFile(filePath);
+      return JSON.parse(content.toString());
+    }
+
+    const pageTreeDataFilePath = path.join(this.docsDir, 'pageTreeData.rocketGenerated.json');
+    const pageTreeData = existsSync(pageTreeDataFilePath)
+      ? await readJsonFile(pageTreeDataFilePath)
+      : {};
+
+    const treeModel = new TreeModel();
+    treeModel.parse(pageTreeData);
+
+    
+
+
+
+    // const { relativeFilePath, outputFilePath } = page;
+
+    // const foundIndex = pageTreeData.findIndex(p => p.relativeFilePath === relativeFilePath);
+    // const htmlMetaData = await getHtmlMetaData(outputFilePath);
+
+    // const data = {
+    //   relativeFilePath,
+    //   url: pathToUrl(relativeFilePath),
+    //   ...htmlMetaData,
+    // };
+
+    // if (foundIndex === -1) {
+    //   pageTreeData.push(data);
+    // } else {
+    //   pageTreeData[foundIndex] = data;
+    // }
+
+    // console.log({ pageTreeData });
+
+    // const stuff = await parseHtmlFile(outputFilePath);
+    // await writeFile(pageTreeDataFilePath, JSON.stringify(pageTreeData, null, 2));
+
+    return true;
   }
 
   async start() {
@@ -107,7 +184,9 @@ export class Engine {
     await cleanupWorker();
   }
 
-  async renderFile(filePath) {
-    await renderViaWorker({ filePath, outputDir: this.outputDir });
+  async renderFile(filePath, { writeFileToDisk = true } = {}) {
+    return await renderViaWorker({ filePath, outputDir: this.outputDir, writeFileToDisk });
+    // return result.outputWriteFilePath;
+    // console.log({foo});
   }
 }

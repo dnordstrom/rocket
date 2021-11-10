@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import saxWasm from 'sax-wasm';
 import { createRequire } from 'module';
-import { getAttribute, getText } from './sax-helpers.js';
+import { getAttribute, getText } from './helpers/sax-helpers.js';
 
 /** @typedef {import('sax-wasm').Text} Text */
 /** @typedef {import('sax-wasm').Tag} Tag */
@@ -37,13 +37,10 @@ function isHeadline(data) {
  * @param {string} options.rootDir
  * @returns
  */
-export function parseHtmlFile(htmlFilePath, options) {
-  // const relPath = path.relative(options.rootDir, htmlFilePath);
+export function getHtmlMetaData(htmlFilePath) {
   /** @type {ParseMetaData} */
   const metaData = {
-    menus: [],
-    // relPath,
-    __tocElements: [],
+    // headlinesWithId: [],
   };
 
   parser.eventHandler = (ev, _data) => {
@@ -52,7 +49,7 @@ export function parseHtmlFile(htmlFilePath, options) {
       if (data.name === 'meta') {
         const metaName = getAttribute(data, 'name');
         if (metaName === 'menu:link.text') {
-          metaData.metaLinkText = getAttribute(data, 'content');
+          metaData.menuLinkText = getAttribute(data, 'content');
         }
         if (metaName === 'menu:page.releaseDateTime') {
           const dtString = getAttribute(data, 'content');
@@ -71,10 +68,10 @@ export function parseHtmlFile(htmlFilePath, options) {
           metaData.subHeading = getAttribute(data, 'content');
         }
         if (metaName === 'menu:order') {
-          metaData.order = parseInt(getAttribute(data, 'content') || '0');
+          metaData.menuOrder = parseInt(getAttribute(data, 'content') || '0');
         }
         if (metaName === 'menu:exclude') {
-          metaData.exclude = getAttribute(data, 'content') !== 'false';
+          metaData.menuExclude = getAttribute(data, 'content') !== 'false';
         }
       }
       if (!metaData.title && data.name === 'title') {
@@ -87,19 +84,15 @@ export function parseHtmlFile(htmlFilePath, options) {
       if (isHeadline(data)) {
         const id = getAttribute(data, 'id');
         const text = getText(data);
-        if (id && text && metaData.__tocElements) {
-          metaData.__tocElements.push({
+        if (id && text) {
+          if (!metaData.headlinesWithId) {
+            metaData.headlinesWithId = [];
+          }
+          metaData.headlinesWithId.push({
             text,
             id,
             level: parseInt(data.name[1], 10),
           });
-        }
-      }
-
-      if (data.name === 'web-menu') {
-        const name = getAttribute(data, 'name');
-        if (name) {
-          metaData.menus.push({ name, start: data.openEnd, end: data.closeStart });
         }
       }
     }
@@ -116,7 +109,6 @@ export function parseHtmlFile(htmlFilePath, options) {
     readable.on('end', () => {
       parser.end();
       metaData.name = metaData.metaLinkText || metaData.h1 || metaData.title;
-      metaData.fileString = Buffer.concat(chunks).toString('utf8');
 
       resolve(metaData);
     });

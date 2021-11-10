@@ -3,7 +3,7 @@ import { Worker } from 'worker_threads';
 let worker = new Worker('./src/worker/renderFile.js');
 const history = new Set();
 
-export function renderViaWorker({ filePath, outputDir }) {
+export function renderViaWorker({ filePath, outputDir, writeFileToDisk }) {
   if (history.has(filePath)) {
     // trying rerender the same file => needs a new worker to clear the module cache
     worker.unref();
@@ -13,7 +13,7 @@ export function renderViaWorker({ filePath, outputDir }) {
   history.add(filePath);
 
   return new Promise((resolve, reject) => {
-    worker.postMessage({ action: 'renderFile', filePath, outputDir });
+    worker.postMessage({ action: 'renderFile', filePath, outputDir, writeFileToDisk });
 
     worker.once('message', result => {
       resolve(result);
