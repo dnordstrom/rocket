@@ -62,7 +62,7 @@ export class Menu {
    */
   link(node) {
     const current = node === this.currentNode ? ' aria-current="page" ' : '';
-    return `<a href="${node.model.url}"${current}>${node.model.name}</a>`;
+    return `<a href="${node.model.url}"${current}>${node.model.menuLinkText}</a>`;
   }
 
   /**

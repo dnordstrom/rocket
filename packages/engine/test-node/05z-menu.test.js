@@ -12,11 +12,11 @@ describe('Engine menus', () => {
     expect(readOutput('index.html', { format: 'html' })).to.equal(
       [
         '<nav aria-label="site">',
-        '  <a href="about/index.html">About</a>',
-        '  <a href="components/index.html">Components</a>',
+        '  <a href="/about/">About</a>',
+        '  <a href="/components/">Components</a>',
         '</nav>',
         '',
-        '<main><p>Home</p></main>',
+        '<main><h1>Home</h1></main>',
         '',
       ].join('\n'),
     );
@@ -24,11 +24,11 @@ describe('Engine menus', () => {
     expect(readOutput('about/index.html', { format: 'html' })).to.equal(
       [
         '<nav aria-label="site">',
-        '  <a href="about/index.html">About</a>',
-        '  <a href="components/index.html">Components</a>',
+        '  <a href="/about/" aria-current="page">About</a>',
+        '  <a href="/components/">Components</a>',
         '</nav>',
         '',
-        '<main><p>About</p></main>',
+        '<main><h1>About</h1></main>',
         '',
       ].join('\n'),
     );
@@ -36,44 +36,66 @@ describe('Engine menus', () => {
     await cleanup();
   });
 
-  it.only('can generate a pageTree.rocketGenerated.js file', async () => {
-    const { cleanup, readOutput, engine, readSource } = setupTestEngine(
+  it('will create a complete new pageTreeData file when using build', async () => {
+    const { cleanup, writeSource, engine, readSource, readOutput } = setupTestEngine(
       'fixtures/05-menu/02-generate-page-tree/docs',
     );
 
-    await engine.run();
+    const startTreeData = {
+      menuLinkText: 'existing Home',
+      h1: 'This is existing Home',
+      name: 'This is existing Home',
+      url: '/',
+      outputRelativeFilePath: 'index.html',
+      sourceRelativeFilePath: 'index.rocket.js',
+      level: 0,
+      children: [],
+    };
+    // this simulates a pre existing file
+    await writeSource('pageTreeData.rocketGenerated.json', JSON.stringify(startTreeData, null, 2));
 
-    expect(readSource('pageTreeData.rocketGenerated.json')).to.equal(
-      JSON.stringify(
+    await engine.run(); // TODO: rename to build
+
+    expect(JSON.parse(readSource('pageTreeData.rocketGenerated.json'))).to.deep.equal({
+      menuLinkText: 'Home',
+      h1: 'This is Home',
+      url: '/',
+      outputRelativeFilePath: 'index.html',
+      sourceRelativeFilePath: 'index.rocket.js',
+      level: 0,
+      children: [
         {
-          level: 0,
-          h1: 'This is Home',
-          menuLinkText: 'Home',
-          url: '/',
-          outputRelativeFilePath: 'index.html',
-          sourceRelativeFilePath: 'index.rocket.js',
-          children: [
-            {
-              h1: 'This is About',
-              menuLinkText: 'About',
-              url: '/about/',
-              level: 1,
-              outputRelativeFilePath: 'about/index.html',
-              sourceRelativeFilePath: 'about.rocket.js',
-            },
-            {
-              h1: 'This is Components',
-              menuLinkText: 'Components',
-              url: '/components/',
-              level: 1,
-              outputRelativeFilePath: 'components/index.html',
-              sourceRelativeFilePath: 'components.rocket.js',
-            },
-          ],
+          menuLinkText: 'About',
+          h1: 'This is About',
+          url: '/about/',
+          outputRelativeFilePath: 'about/index.html',
+          sourceRelativeFilePath: 'about.rocket.js',
+          level: 1,
         },
-        null,
-        2,
-      ),
+        {
+          menuLinkText: 'Components',
+          h1: 'This is Components',
+          url: '/components/',
+          outputRelativeFilePath: 'components/index.html',
+          sourceRelativeFilePath: 'components.rocket.js',
+          level: 1,
+        },
+      ],
+    });
+
+    expect(readOutput('index.html', { format: 'html' })).to.equal(
+      [
+        '<nav aria-label="site">',
+        '  <a href="/about/">About</a>',
+        '  <a href="/components/">Components</a>',
+        '</nav>',
+        '',
+        '<main>',
+        '  <meta name="menu:link.text" content="Home" />',
+        '  <h1>This is Home</h1>',
+        '</main>',
+        '',
+      ].join('\n'),
     );
 
     await cleanup();

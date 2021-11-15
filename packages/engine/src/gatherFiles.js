@@ -2,13 +2,22 @@ import { readdir } from 'fs/promises';
 import path from 'path';
 import { slugify } from './slugify.js';
 
+function isRocketIndexFile(fileName, fileEndings) {
+  for (const ending of fileEndings) {
+    if (fileName === `index${ending}`) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * @typedef {object} gatherFilesOptions
  * @property {string[]} fileEndings
  **/
 
 /**
- * @param {string} inRootDir
+ * @param {string | URL} inRootDir
  * @param {Partial<gatherFilesOptions>} [options]
  * @returns
  */
@@ -19,14 +28,30 @@ export async function gatherFiles(inRootDir, options = {}) {
     ...options,
   };
 
-  const rootDir = path.resolve(inRootDir);
+  const rootDir = inRootDir instanceof URL ? inRootDir.pathname : path.resolve(inRootDir);
   let files = [];
 
   const entries = await readdir(rootDir, { withFileTypes: true });
+
+  const { fileEndings } = activeOptions;
+
+  // for (const ending of fileEndings) {
+  //   const fileNames = entries.map(entry => entry.name);
+  //   if (fileNames.includes(`index${ending}`)) {
+  //     const filePath = path.join(rootDir, `index${ending}`);
+  //     files.push(filePath);
+  //   }
+  // }
+  for (const entry of entries) {
+    if (!entry.isDirectory() && isRocketIndexFile(entry.name, fileEndings)) {
+      const filePath = path.join(rootDir, entry.name);
+      files.push(filePath);
+    }
+  }
+
   for (const entry of entries) {
     const { name } = entry;
     const currentPath = path.join(rootDir, name);
-    const { fileEndings } = activeOptions;
 
     if (entry.isDirectory()) {
       // if (slugify(name) !== name.replace(/\./g, '')) {
@@ -41,8 +66,10 @@ export async function gatherFiles(inRootDir, options = {}) {
       //     `File at "${currentPath}" is using invalid characters. Use only url safe characters like [a-z][A-Z]-_`,
       //   );
       // }
-      const filePath = path.join(rootDir, name);
-      files.push(filePath);
+      if (!isRocketIndexFile(name, fileEndings)) {
+        const filePath = path.join(rootDir, name);
+        files.push(filePath);
+      }
     }
   }
   return files;

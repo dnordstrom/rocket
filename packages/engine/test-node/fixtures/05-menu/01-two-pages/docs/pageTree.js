@@ -1,13 +1,29 @@
-import TreeModel from 'tree-model';
+import { TreeModel } from '@d4kmor/tree-model';
 
 const data = {
+  h1: 'Home',
+  menuLinkText: 'Home',
+  url: '/',
+  outputRelativeFilePath: 'index.html',
+  sourceRelativeFilePath: 'index.rocket.js',
   level: 0,
-  name: 'Two Pages',
-  title: 'Two Pages',
-  relPath: 'index.rocket.js',
   children: [
-    { name: 'About', url: 'about/index.html', level: 1, relPath: 'about.rocket.js' },
-    { name: 'Components', url: 'components/index.html', level: 1, relPath: 'components.rocket.js' },
+    {
+      h1: 'About',
+      menuLinkText: 'About',
+      url: '/about/',
+      outputRelativeFilePath: 'about/index.html',
+      sourceRelativeFilePath: 'about.rocket.js',
+      level: 1,
+    },
+    {
+      h1: 'Components',
+      menuLinkText: 'Components',
+      url: '/components/',
+      outputRelativeFilePath: 'components/index.html',
+      sourceRelativeFilePath: 'components.rocket.js',
+      level: 1,
+    },
   ],
 };
 

@@ -12,8 +12,8 @@ describe('Formats', () => {
     expect(readOutput('empty/index.html')).to.equal(
       '<p>empty.rocket.md relativeFilePath: "empty.rocket.md"</p>',
     );
-    expect(readOutput('existing/index.html')).to.equal(
-      '<p>existing.rocket.md relativeFilePath: "existing.rocket.md"</p>',
+    expect(readOutput('index.html')).to.equal(
+      '<p>index.rocket.md relativeFilePath: "index.rocket.md"</p>',
     );
   });
 
@@ -29,8 +29,8 @@ describe('Formats', () => {
     expect(readOutput('empty/index.html')).to.equal(
       '<p>empty.rocket.html relativeFilePath: "empty.rocket.html"</p>',
     );
-    expect(readOutput('existing/index.html')).to.equal(
-      '<p>existing.rocket.html relativeFilePath: "existing.rocket.html"</p>',
+    expect(readOutput('index.html')).to.equal(
+      '<p>index.rocket.html relativeFilePath: "index.rocket.html"</p>',
     );
   });
 });

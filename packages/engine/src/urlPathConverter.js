@@ -3,7 +3,7 @@ import path from 'path';
 export function urlToPath() {}
 
 /**
- * @param {string} name 
+ * @param {string} name
  * @returns {string}
  */
 function cleanOrder(name) {
@@ -43,4 +43,17 @@ export function pathToUrl(relPath) {
   return name === 'index'
     ? path.join(dirname, 'index.html')
     : path.join(dirname, name, 'index.html');
+}
+
+/**
+ * 
+ * @param {string} sourceRelativeFilePath 
+ * @returns 
+ */
+export function sourceRelativeFilePathToUrl(sourceRelativeFilePath) {
+  const outputRelativeFilePath = pathToUrl(sourceRelativeFilePath);
+
+  return outputRelativeFilePath.endsWith('index.html')
+    ? `/${outputRelativeFilePath.substring(0, outputRelativeFilePath.length - 10)}`
+    : `/${outputRelativeFilePath}`;
 }

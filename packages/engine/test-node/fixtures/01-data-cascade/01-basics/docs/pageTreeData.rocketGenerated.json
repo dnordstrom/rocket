@@ -1,0 +1,20 @@
+{
+  "url": "/",
+  "outputRelativeFilePath": "index.html",
+  "sourceRelativeFilePath": "index.rocket.js",
+  "level": 0,
+  "children": [
+    {
+      "url": "/empty/",
+      "outputRelativeFilePath": "empty/index.html",
+      "sourceRelativeFilePath": "empty.rocket.js",
+      "level": 1
+    },
+    {
+      "url": "/sub-dir/",
+      "outputRelativeFilePath": "sub-dir/index.html",
+      "sourceRelativeFilePath": "sub-dir/index.rocket.js",
+      "level": 1
+    }
+  ]
+}

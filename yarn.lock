@@ -1114,10 +1114,10 @@
     remark-stringify "^9.0.1"
     unified "^9.2.1"
 
-"@d4kmor/tree-model@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@d4kmor/tree-model/-/tree-model-0.1.0.tgz#fed1b31885cc7a64c0026788cd19355087f42c40"
-  integrity sha512-04OitEm+uNkfwwXxvQbIb5LrtynoFMWNU8mUVyus2hiUJJt4L6Wb/1XePi/q6g/gmKoQ7giQUXUBRo/svfZdlw==
+"@d4kmor/tree-model@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@d4kmor/tree-model/-/tree-model-0.1.1.tgz#ba7bd616ea8491becd47ea760718eafe03125776"
+  integrity sha512-AEsQF701ELrcYbI5AF5tSSm6o0nhidWzufLAbCU1WBDe8cRDVw7yQx44qV90PMHJxJ8G2cr9Eh6M/eep+2Ws9A==
 
 "@eslint/eslintrc@^0.2.2":
   version "0.2.2"

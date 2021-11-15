@@ -38,7 +38,7 @@
     "commander": "^8.2.0",
     "plugins-manager": "^0.3.0",
     "sax-wasm": "^2.0.0",
-    "@d4kmor/tree-model": "^0.1.0"
+    "@d4kmor/tree-model": "^0.1.1"
   },
   "types": "dist-types/index.d.ts"
 }

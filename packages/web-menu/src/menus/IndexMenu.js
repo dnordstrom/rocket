@@ -36,10 +36,10 @@ export class IndexMenu extends Menu {
   link(node) {
     if (node.children && node.children.length > 0) {
       const lvl = node.model.level;
-      return lvl < 3 ? `<span>${node.model.name}</span>` : '';
+      return lvl < 3 ? `<span>${node.model.menuLinkText}</span>` : '';
     }
     const current = node === this.currentNode ? ' aria-current="page" ' : '';
-    return `<a href="${node.model.url}"${current}>${node.model.name}</a>`;
+    return `<a href="${node.model.url}"${current}>${node.model.menuLinkText}</a>`;
   }
 
   /**
@@ -56,7 +56,7 @@ export class IndexMenu extends Menu {
       const lvl = node.model.level;
       const { listTag } = this.options;
       return `
-        ${lvl > 2 ? `<details ${open}><summary>${node.model.name}</summary>` : ''}
+        ${lvl > 2 ? `<details ${open}><summary>${node.model.menuLinkText}</summary>` : ''}
           <${listTag} class="lvl-${lvl + 1}">
             ${node.children.map(child => this.listItem(child)).join('')}
           </${listTag}>

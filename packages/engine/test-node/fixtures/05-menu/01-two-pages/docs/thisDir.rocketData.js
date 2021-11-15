@@ -6,7 +6,7 @@ import { Site } from '@web/menu';
  * @param {NodeOfPage} node
  */
 function setCurrent(tree, relativeFilePath) {
-  const currentNode = tree.first(entry => entry.model.relPath === relativeFilePath);
+  const currentNode = tree.first(entry => entry.model.sourceRelativeFilePath === relativeFilePath);
   if (currentNode) {
     currentNode.model.current = true;
     for (const parent of currentNode.getPath()) {

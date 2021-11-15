@@ -1,5 +1,5 @@
 import chai from 'chai';
-import TreeModel from 'tree-model';
+import { TreeModel } from '';
 
 const { expect } = chai;
 

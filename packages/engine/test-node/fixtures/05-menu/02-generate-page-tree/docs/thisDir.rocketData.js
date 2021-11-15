@@ -1,7 +1,8 @@
-import { pageTree } from './pageTree.js';
+// import { pageTree } from './pageTree.js';
 import { Site } from '@web/menu';
-import TreeModel from 'tree-model';
+import { TreeModel } from '@d4kmor/tree-model';
 import { readFile } from 'fs/promises';
+import { existsSync } from 'fs';
 
 
 /**
@@ -9,7 +10,7 @@ import { readFile } from 'fs/promises';
  * @param {NodeOfPage} node
  */
 function setCurrent(tree, relativeFilePath) {
-  const currentNode = tree.first(entry => entry.model.relPath === relativeFilePath);
+  const currentNode = tree.first(entry => entry.model.sourceRelativeFilePath === relativeFilePath);
   if (currentNode) {
     currentNode.model.current = true;
     for (const parent of currentNode.getPath()) {
@@ -32,7 +33,8 @@ function removeCurrent(tree) {
 }
 
 async function getPageTree() {
-  const data = JSON.parse((await readFile(new URL('./pageTreeData.rocketGenerated.json', import.meta.url))).toString());
+  const filePath = new URL('./pageTreeData.rocketGenerated.json', import.meta.url);
+  const data = existsSync(filePath) ? JSON.parse((await readFile(filePath)).toString()) : {};
   const treeModel = new TreeModel();
   return treeModel.parse(data);
 }

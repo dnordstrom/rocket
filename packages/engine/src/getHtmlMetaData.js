@@ -33,8 +33,6 @@ function isHeadline(data) {
 /**
  *
  * @param {string} htmlFilePath
- * @param {object} options
- * @param {string} options.rootDir
  * @returns
  */
 export function getHtmlMetaData(htmlFilePath) {
@@ -108,7 +106,7 @@ export function getHtmlMetaData(htmlFilePath) {
     });
     readable.on('end', () => {
       parser.end();
-      metaData.name = metaData.metaLinkText || metaData.h1 || metaData.title;
+      metaData.menuLinkText = metaData.menuLinkText || metaData.h1 || metaData.title;
 
       resolve(metaData);
     });

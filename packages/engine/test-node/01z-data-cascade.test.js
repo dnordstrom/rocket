@@ -27,18 +27,18 @@ describe('Engine Data Cascade', () => {
       'empty.rocket.js relativeFilePath: "empty.rocket.js"',
     );
 
-    expect(readSource('existing.rocket.js')).to.equal(
+    expect(readSource('index.rocket.js')).to.equal(
       [
         `/* START - Rocket auto generated - do not touch */`,
-        "export const relativeFilePath = 'existing.rocket.js';",
+        "export const relativeFilePath = 'index.rocket.js';",
         `/* END - Rocket auto generated - do not touch */`,
         '',
-        'export default `existing.rocket.js relativeFilePath: "${relativeFilePath}"`;',
+        'export default `index.rocket.js relativeFilePath: "${relativeFilePath}"`;',
         '',
       ].join('\n'),
     );
-    expect(readOutput('existing/index.html')).to.equal(
-      'existing.rocket.js relativeFilePath: "existing.rocket.js"',
+    expect(readOutput('index.html')).to.equal(
+      'index.rocket.js relativeFilePath: "index.rocket.js"',
     );
 
     expect(readSource('sub-dir/index.rocket.js')).to.equal(
