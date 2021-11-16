@@ -5,8 +5,8 @@ const { expect } = chai;
 
 describe('Engine Urls', () => {
   it('creates urls based on filename heuristics', async () => {
-    const { execute, readOutput } = setupTestEngine('fixtures/02-urls/docs');
-    await execute();
+    const { build, readOutput } = setupTestEngine('fixtures/02-urls/docs');
+    await build();
 
     expect(readOutput('index.html')).to.equal('index');
     expect(readOutput('about/index.html')).to.equal('about');

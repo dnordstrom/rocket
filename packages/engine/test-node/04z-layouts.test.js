@@ -5,8 +5,8 @@ const { expect } = chai;
 
 describe('Layouts', () => {
   it('01-function', async () => {
-    const { execute, readOutput } = setupTestEngine('fixtures/04-layouts/01-function/docs');
-    await execute();
+    const { build, readOutput } = setupTestEngine('fixtures/04-layouts/01-function/docs');
+    await build();
 
     let outcome = [
       '<html>',
@@ -44,8 +44,8 @@ describe('Layouts', () => {
   it.skip('permalink-invalid-filename', async () => {
     await expectThrowsAsync(
       () => {
-        const { execute } = setupTestEngine('fixtures/permalink-invalid-filename/docs');
-        return execute();
+        const { build } = setupTestEngine('fixtures/permalink-invalid-filename/docs');
+        return build();
       },
       {
         errorMatch: /File at ".*" is using invalid characters. Use only url safe characters like \[a-z\]\[A-Z\]-_/,
@@ -54,8 +54,8 @@ describe('Layouts', () => {
   });
 
   it('02-Class', async () => {
-    const { execute, readOutput } = setupTestEngine('fixtures/04-layouts/02-class/docs');
-    await execute();
+    const { build, readOutput } = setupTestEngine('fixtures/04-layouts/02-class/docs');
+    await build();
 
     expect(readOutput('layout-raw/index.html', { format: 'html' })).to.equal(
       ['<p>Hey there</p>', ''].join('\n'),

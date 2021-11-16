@@ -5,9 +5,9 @@ const { expect } = chai;
 
 describe('Formats', () => {
   it('markdown', async () => {
-    const { execute, readOutput, writeSource } = setupTestEngine('fixtures/03-formats/md');
+    const { build, readOutput, writeSource } = setupTestEngine('fixtures/03-formats/md');
     await writeSource('empty.rocket.md', 'empty.rocket.md relativeFilePath: "${relativeFilePath}"');
-    await execute();
+    await build();
 
     expect(readOutput('empty/index.html')).to.equal(
       '<p>empty.rocket.md relativeFilePath: "empty.rocket.md"</p>',
@@ -19,12 +19,12 @@ describe('Formats', () => {
 
   // TODO: implement
   it.skip('html', async () => {
-    const { execute, readOutput, writeSource } = setupTestEngine('fixtures/03-formats/md');
+    const { build, readOutput, writeSource } = setupTestEngine('fixtures/03-formats/md');
     await writeSource(
       'empty.rocket.html',
       'empty.rocket.html relativeFilePath: "${relativeFilePath}"',
     );
-    await execute();
+    await build();
 
     expect(readOutput('empty/index.html')).to.equal(
       '<p>empty.rocket.html relativeFilePath: "empty.rocket.html"</p>',

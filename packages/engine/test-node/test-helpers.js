@@ -73,8 +73,8 @@ export function setupTestEngine(docsDir, options = {}) {
     await engine.cleanup();
   }
 
-  async function execute() {
-    await engine.run();
+  async function build() {
+    await engine.build();
     await cleanup();
   }
 
@@ -98,7 +98,7 @@ export function setupTestEngine(docsDir, options = {}) {
     readOutput,
     outputExists,
     readSource,
-    execute,
+    build,
     writeSource,
     watch,
     cleanup,

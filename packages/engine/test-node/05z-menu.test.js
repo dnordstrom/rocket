@@ -5,9 +5,8 @@ const { expect } = chai;
 
 describe('Engine menus', () => {
   it('can add a static menu', async () => {
-    const { cleanup, readOutput, engine } = setupTestEngine('fixtures/05-menu/01-two-pages/docs');
-
-    await engine.run();
+    const { readOutput, build } = setupTestEngine('fixtures/05-menu/01-two-pages/docs');
+    await build();
 
     expect(readOutput('index.html', { format: 'html' })).to.equal(
       [
@@ -32,12 +31,10 @@ describe('Engine menus', () => {
         '',
       ].join('\n'),
     );
-
-    await cleanup();
   });
 
   it('will create a complete new pageTreeData file when using build', async () => {
-    const { cleanup, writeSource, engine, readSource, readOutput } = setupTestEngine(
+    const { writeSource, build, readSource, readOutput } = setupTestEngine(
       'fixtures/05-menu/02-generate-page-tree/docs',
     );
 
@@ -54,7 +51,7 @@ describe('Engine menus', () => {
     // this simulates a pre existing file
     await writeSource('pageTreeData.rocketGenerated.json', JSON.stringify(startTreeData, null, 2));
 
-    await engine.run(); // TODO: rename to build
+    await build();
 
     expect(JSON.parse(readSource('pageTreeData.rocketGenerated.json'))).to.deep.equal({
       menuLinkText: 'Home',
@@ -97,7 +94,5 @@ describe('Engine menus', () => {
         '',
       ].join('\n'),
     );
-
-    await cleanup();
   });
 });

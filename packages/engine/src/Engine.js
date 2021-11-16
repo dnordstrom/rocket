@@ -61,7 +61,7 @@ export class Engine {
       : path.join(this.docsDir, '..', '_site');
   }
 
-  async run() {
+  async build() {
     if (!existsSync(this.outputDir)) {
       await mkdir(this.outputDir, { recursive: true });
     }

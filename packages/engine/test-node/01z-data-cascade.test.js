@@ -5,14 +5,14 @@ const { expect } = chai;
 
 describe('Engine Data Cascade', () => {
   it('injects a header into the source file', async () => {
-    const { execute, readSource, writeSource, readOutput } = setupTestEngine(
+    const { build, readSource, writeSource, readOutput } = setupTestEngine(
       'fixtures/01-data-cascade/01-basics/docs',
     );
     await writeSource(
       'empty.rocket.js',
       'export default `empty.rocket.js relativeFilePath: "${relativeFilePath}"`;',
     );
-    await execute();
+    await build();
 
     expect(readSource('empty.rocket.js')).to.equal(
       [
@@ -59,14 +59,14 @@ describe('Engine Data Cascade', () => {
   });
 
   it('injects data from `thisDir.rocketData.js`', async () => {
-    const { execute, readSource, writeSource } = setupTestEngine(
+    const { build, readSource, writeSource } = setupTestEngine(
       'fixtures/01-data-cascade/02-this-dir/docs',
     );
     await writeSource('index.rocket.js', 'export default `index`;');
     await writeSource('about.rocket.js', 'export default `about`;');
     await writeSource('components/accordion.rocket.js', 'export default `accordion`;');
     await writeSource('components/tabs.rocket.js', 'export default `tabs`;');
-    await execute();
+    await build();
 
     expect(readSource('index.rocket.js')).to.equal(
       [
@@ -118,11 +118,11 @@ describe('Engine Data Cascade', () => {
   });
 
   it('injects multiple exports from `thisDir.rocketData.js`', async () => {
-    const { execute, readSource, writeSource } = setupTestEngine(
+    const { build, readSource, writeSource } = setupTestEngine(
       'fixtures/01-data-cascade/03-this-dir-multiple-exports/docs',
     );
     await writeSource('index.rocket.js', 'export default `index`;');
-    await execute();
+    await build();
 
     expect(readSource('index.rocket.js')).to.equal(
       [
@@ -138,7 +138,7 @@ describe('Engine Data Cascade', () => {
   });
 
   it('imports as "[name]asOriginal" if export exists`', async () => {
-    const { execute, readSource, writeSource } = setupTestEngine(
+    const { build, readSource, writeSource } = setupTestEngine(
       'fixtures/01-data-cascade/04-import-as-original/docs',
     );
     await writeSource('index.rocket.js', [
@@ -146,7 +146,7 @@ describe('Engine Data Cascade', () => {
       '',
       'export default JSON.stringify(options, null, 2);'
     ].join('\n'));
-    await execute();
+    await build();
 
     expect(readSource('index.rocket.js')).to.equal(
       [
