@@ -1,7 +1,7 @@
 import path from 'path';
 import { TreeModel } from '@d4kmor/tree-model';
 import { getHtmlMetaData } from './getHtmlMetaData.js';
-import { pathToUrl, sourceRelativeFilePathToUrl } from './urlPathConverter.js';
+import { sourceRelativeFilePathToOutputRelativeFilePath, sourceRelativeFilePathToUrl } from './urlPathConverter.js';
 import { readFile, writeFile } from 'fs/promises';
 
 function findParent(child, tree) {
@@ -32,7 +32,7 @@ export class PageTree {
   async add(sourceRelativeFilePath) {
     const outputFilePath = path.join(this.docsDir, sourceRelativeFilePath);
     const htmlMetaData = await getHtmlMetaData(outputFilePath);
-    const outputRelativeFilePath = pathToUrl(sourceRelativeFilePath);
+    const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(sourceRelativeFilePath);
 
     if (!outputRelativeFilePath.endsWith('index.html')) {
       return;

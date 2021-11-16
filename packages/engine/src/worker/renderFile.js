@@ -3,7 +3,7 @@ import { mdjsProcess } from '@mdjs/core';
 import { parentPort } from 'worker_threads';
 import { mkdir, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
-import { pathToUrl } from '../urlPathConverter.js';
+import { sourceRelativeFilePathToOutputRelativeFilePath } from '../urlPathConverter.js';
 import { convertMdFile } from '../converts.js';
 
 async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
@@ -16,7 +16,7 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
 
   const { sourceRelativeFilePath, layout } = data;
 
-  const outputRelativeFilePath = pathToUrl(sourceRelativeFilePath);
+  const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(sourceRelativeFilePath);
   const outputWriteFilePath = path.join(outputDir, outputRelativeFilePath);
 
   let contentForLayout = content;

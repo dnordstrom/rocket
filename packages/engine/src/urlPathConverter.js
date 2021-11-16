@@ -1,6 +1,7 @@
 import path from 'path';
 
-export function urlToPath() {}
+export function urlToSourceRelativeFilePath() {}
+export function outputRelativeFilePathToSourceRelativeFilePath() {}
 
 /**
  * @param {string} name
@@ -20,7 +21,7 @@ function cleanOrder(name) {
  * @param {string} relPath
  * @returns {string}
  */
-export function pathToUrl(relPath) {
+export function sourceRelativeFilePathToOutputRelativeFilePath(relPath) {
   const basename = path.basename(relPath);
   const rawDirname = path.dirname(relPath);
 
@@ -51,7 +52,7 @@ export function pathToUrl(relPath) {
  * @returns 
  */
 export function sourceRelativeFilePathToUrl(sourceRelativeFilePath) {
-  const outputRelativeFilePath = pathToUrl(sourceRelativeFilePath);
+  const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(sourceRelativeFilePath);
 
   return outputRelativeFilePath.endsWith('index.html')
     ? `/${outputRelativeFilePath.substring(0, outputRelativeFilePath.length - 10)}`
