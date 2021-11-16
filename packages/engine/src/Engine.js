@@ -94,6 +94,7 @@ export class Engine {
     const files = await gatherFiles(this.docsDir);
 
     this.watcher = new Watcher();
+    await this.watcher.init(this.docsDir);
     await this.watcher.addPages(files);
 
     const debouncedUpdateEvent = debounce(
@@ -105,9 +106,9 @@ export class Engine {
     );
 
     this.watcher.watchPages(async page => {
-      await updateRocketHeader(page.filePath, this.docsDir);
+      await updateRocketHeader(page.sourceFilePath, this.docsDir);
       // if (page.active) {  // TODO: add feature to only render pages currently open in the browser
-      await this.renderFile(page.filePath);
+      await this.renderFile(page.sourceFilePath);
       // }
       debouncedUpdateEvent();
     });

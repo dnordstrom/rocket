@@ -35,6 +35,7 @@
   ],
   "dependencies": {
     "@custom-elements-manifest/find-dependencies": "0.0.4",
+    "@parcel/watcher": "^2.0.2",
     "es-module-lexer": "^0.9.3",
     "plugins-manager": "^0.3.0"
   },

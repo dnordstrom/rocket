@@ -5,7 +5,7 @@ const { expect } = chai;
 
 describe('Engine start', () => {
   it('updates rocket header on a *.rocket.js file change', async () => {
-    const { writeSource, cleanup, readSource, engine, anEngineEvent } = setupTestEngine(
+    const { writeSource, cleanup, readSource, engine, anEngineEvent } = await setupTestEngine(
       'fixtures/09-watch/01-update-header/docs',
     );
 
@@ -31,7 +31,7 @@ describe('Engine start', () => {
   });
 
   it('if started updates the header on file change', async () => {
-    const { writeSource, cleanup, readSource, engine, anEngineEvent } = setupTestEngine(
+    const { writeSource, cleanup, readSource, engine, anEngineEvent } = await setupTestEngine(
       'fixtures/09-watch/02-update-header-on-dependency-change/docs',
     );
 
@@ -96,9 +96,14 @@ describe('Engine start', () => {
   });
 
   it('rerenders only a single file when changing a single file', async () => {
-    const { build, readOutput, writeSource, anEngineEvent, cleanup, engine } = setupTestEngine(
-      'fixtures/09-watch/edit-single-page/docs',
-    );
+    const {
+      build,
+      readOutput,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+    } = await setupTestEngine('fixtures/09-watch/03-update-single-page/docs');
 
     await writeSource('index.rocket.js', "export default 'index';");
     await writeSource('about.rocket.js', "export default 'about';");
@@ -111,6 +116,111 @@ describe('Engine start', () => {
     await anEngineEvent('rocketUpdated');
     expect(readOutput('index.html')).to.equal('<my-layout>updated index</my-layout>');
     expect(readOutput('about/index.html')).to.equal('<my-layout>about</my-layout>');
+
+    await cleanup();
+  });
+
+  it('rerenders on a js dependency change', async () => {
+    const {
+      build,
+      readOutput,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+    } = await setupTestEngine('fixtures/09-watch/04-update-js-dependency/docs');
+
+    await writeSource('name.js', "export const name = 'initial name';");
+    await build();
+    expect(readOutput('index.html')).to.equal('name: "initial name"');
+
+    await engine.start();
+    await writeSource('name.js', "export const name = '🚀';");
+    await anEngineEvent('rocketUpdated');
+    expect(readOutput('index.html')).to.equal('name: "🚀"');
+
+    await cleanup();
+  });
+
+  it('rerenders on a js dependency change after an import change in the page', async () => {
+    const {
+      build,
+      readOutput,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+    } = await setupTestEngine(
+      'fixtures/09-watch/05-update-js-dependency-after-page-import-change/docs',
+    );
+
+    await writeSource('name.js', "export const name = 'I am name.js';");
+    await writeSource('name-initial.js', "export const name = 'I am name-initial.js';");
+    await writeSource(
+      'index.rocket.js',
+      [
+        //
+        `import { name } from './name-initial.js';`,
+        '',
+        'export default `name: "${name}"`;',
+      ].join('\n'),
+    );
+    await build();
+    expect(readOutput('index.html')).to.equal('name: "I am name-initial.js"');
+
+    await engine.start();
+    // will not trigger a write as not part of the jsDependencies
+    await writeSource('name.js', "export const name = '🚀 stage 1';");
+    await new Promise(resolve => setTimeout(resolve, 10));
+    expect(readOutput('index.html')).to.equal('name: "I am name-initial.js"');
+
+    await writeSource(
+      'index.rocket.js',
+      [
+        //
+        `import { name } from './name.js';`,
+        '',
+        'export default `name: "${name}"`;',
+      ].join('\n'),
+    );
+    await anEngineEvent('rocketUpdated');
+    expect(readOutput('index.html')).to.equal('name: "🚀 stage 1"');
+
+    // now it will trigger a write
+    await writeSource('name.js', "export const name = '🚀 stage 2';");
+    await anEngineEvent('rocketUpdated');
+    expect(readOutput('index.html')).to.equal('name: "🚀 stage 2"');
+
+    await cleanup();
+  });
+
+  it('will render newly created pages', async () => {
+    const {
+      build,
+      readOutput,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+      deleteSource,
+    } = await setupTestEngine('fixtures/09-watch/06-create-single-page/docs');
+    await deleteSource('name.js');
+    await deleteSource('about.rocket.js');
+    await build();
+
+    await engine.start();
+    await writeSource('name.js', "export const name = '🚀 stage 1';");
+    await writeSource(
+      'about.rocket.js',
+      [
+        //
+        `import { name } from './name.js';`,
+        '',
+        'export default `name: "${name}"`;',
+      ].join('\n'),
+    );
+    await anEngineEvent('rocketUpdated');
+    expect(readOutput('about/index.html')).to.equal('name: "🚀 stage 1"');
 
     await cleanup();
   });

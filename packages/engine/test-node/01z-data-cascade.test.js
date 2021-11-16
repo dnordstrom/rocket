@@ -5,7 +5,7 @@ const { expect } = chai;
 
 describe('Engine Data Cascade', () => {
   it('injects a header into the source file', async () => {
-    const { build, readSource, writeSource, readOutput } = setupTestEngine(
+    const { build, readSource, writeSource, readOutput } = await setupTestEngine(
       'fixtures/01-data-cascade/01-basics/docs',
     );
     await writeSource(
@@ -59,7 +59,7 @@ describe('Engine Data Cascade', () => {
   });
 
   it('injects data from `thisDir.rocketData.js`', async () => {
-    const { build, readSource, writeSource } = setupTestEngine(
+    const { build, readSource, writeSource } = await setupTestEngine(
       'fixtures/01-data-cascade/02-this-dir/docs',
     );
     await writeSource('index.rocket.js', 'export default `index`;');
@@ -118,7 +118,7 @@ describe('Engine Data Cascade', () => {
   });
 
   it('injects multiple exports from `thisDir.rocketData.js`', async () => {
-    const { build, readSource, writeSource } = setupTestEngine(
+    const { build, readSource, writeSource } = await setupTestEngine(
       'fixtures/01-data-cascade/03-this-dir-multiple-exports/docs',
     );
     await writeSource('index.rocket.js', 'export default `index`;');
@@ -138,7 +138,7 @@ describe('Engine Data Cascade', () => {
   });
 
   it('imports as "[name]asOriginal" if export exists`', async () => {
-    const { build, readSource, writeSource } = setupTestEngine(
+    const { build, readSource, writeSource } = await setupTestEngine(
       'fixtures/01-data-cascade/04-import-as-original/docs',
     );
     await writeSource('index.rocket.js', [

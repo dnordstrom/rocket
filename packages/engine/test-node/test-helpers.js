@@ -2,7 +2,7 @@ import path from 'path';
 import chai from 'chai';
 import { fileURLToPath } from 'url';
 import prettier from 'prettier';
-import { writeFile } from 'fs/promises';
+import { rm, writeFile } from 'fs/promises';
 
 import { Engine } from '../src/Engine.js';
 import { existsSync, readFileSync } from 'fs';
@@ -31,12 +31,14 @@ export async function expectThrowsAsync(method, { errorMatch, errorMessage } = {
   }
 }
 
-export function setupTestEngine(docsDir, options = {}) {
+export async function setupTestEngine(docsDir, options = {}) {
   const useOptions = { ...options, docsDir };
   if (useOptions.docsDir) {
     useOptions.docsDir = path.join(__dirname, docsDir.split('/').join(path.sep));
   }
   useOptions.outputDir = path.join(useOptions.docsDir, '..', '__output');
+
+  await rm(useOptions.outputDir, { recursive: true, force: true });
 
   const engine = new Engine();
   engine.setOptions(useOptions);
@@ -62,6 +64,11 @@ export function setupTestEngine(docsDir, options = {}) {
   async function writeSource(toInspect, text) {
     const filePath = path.join(engine.docsDir, toInspect);
     await writeFile(filePath, text);
+  }
+
+  async function deleteSource(toInspect) {
+    const filePath = path.join(engine.docsDir, toInspect);
+    await rm(filePath);
   }
 
   function outputExists(toInspect) {
@@ -100,6 +107,7 @@ export function setupTestEngine(docsDir, options = {}) {
     readSource,
     build,
     writeSource,
+    deleteSource,
     watch,
     cleanup,
     start,

@@ -5,7 +5,7 @@ const { expect } = chai;
 
 describe('Layouts', () => {
   it('01-function', async () => {
-    const { build, readOutput } = setupTestEngine('fixtures/04-layouts/01-function/docs');
+    const { build, readOutput } = await setupTestEngine('fixtures/04-layouts/01-function/docs');
     await build();
 
     let outcome = [
@@ -54,7 +54,7 @@ describe('Layouts', () => {
   });
 
   it('02-Class', async () => {
-    const { build, readOutput } = setupTestEngine('fixtures/04-layouts/02-class/docs');
+    const { build, readOutput } = await setupTestEngine('fixtures/04-layouts/02-class/docs');
     await build();
 
     expect(readOutput('layout-raw/index.html', { format: 'html' })).to.equal(

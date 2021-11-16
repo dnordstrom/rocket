@@ -5,7 +5,7 @@ const { expect } = chai;
 
 describe('Engine menus', () => {
   it('can add a static menu', async () => {
-    const { readOutput, build } = setupTestEngine('fixtures/05-menu/01-two-pages/docs');
+    const { readOutput, build } = await setupTestEngine('fixtures/05-menu/01-two-pages/docs');
     await build();
 
     expect(readOutput('index.html', { format: 'html' })).to.equal(
@@ -34,7 +34,7 @@ describe('Engine menus', () => {
   });
 
   it('will create a complete new pageTreeData file when using build', async () => {
-    const { writeSource, build, readSource, readOutput } = setupTestEngine(
+    const { writeSource, build, readSource, readOutput } = await setupTestEngine(
       'fixtures/05-menu/02-generate-page-tree/docs',
     );
 
