@@ -1,6 +1,6 @@
 ```js server
 /* START - Rocket auto generated - do not touch */
-export const relativeFilePath = 'markdown.rocket.md';
+export const sourceRelativeFilePath = 'markdown.rocket.md';
 import { layout, title, titleFn } from './thisDir.rocketData.js';
 export { layout, title, titleFn };
 /* END - Rocket auto generated - do not touch */

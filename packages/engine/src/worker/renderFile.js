@@ -14,9 +14,9 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
 
   const { default: content, ...data } = await import(toImportFilePath);
 
-  const { relativeFilePath, layout } = data;
+  const { sourceRelativeFilePath, layout } = data;
 
-  const outputRelativeFilePath = pathToUrl(relativeFilePath);
+  const outputRelativeFilePath = pathToUrl(sourceRelativeFilePath);
   const outputWriteFilePath = path.join(outputDir, outputRelativeFilePath);
 
   let contentForLayout = content;
@@ -41,7 +41,7 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
     status: 200,
     outputWriteFilePath,
     fileContent,
-    relativeFilePath,
+    sourceRelativeFilePath,
   });
 }
 

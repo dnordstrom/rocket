@@ -1,5 +1,5 @@
 /* START - Rocket auto generated - do not touch */
-export const relativeFilePath = 'show-data.rocket.js';
+export const sourceRelativeFilePath = 'show-data.rocket.js';
 import { layout as originalLayout } from './thisDir.rocketData.js';
 /* END - Rocket auto generated - do not touch */
 

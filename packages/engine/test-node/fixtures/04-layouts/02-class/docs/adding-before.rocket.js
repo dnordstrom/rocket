@@ -1,5 +1,5 @@
 /* START - Rocket auto generated - do not touch */
-export const relativeFilePath = 'adding-before.rocket.js';
+export const sourceRelativeFilePath = 'adding-before.rocket.js';
 import { layout as originalLayout } from './thisDir.rocketData.js';
 /* END - Rocket auto generated - do not touch */
 

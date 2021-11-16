@@ -108,10 +108,10 @@ async function generateRocketHeader(content, { filePath, docsDir }) {
     }
   }
 
-  const relFilePath = path.relative(docsDir, filePath);
+  const sourceRelativeFilePath = path.relative(docsDir, filePath);
   const header = [
     '/* START - Rocket auto generated - do not touch */',
-    `export const relativeFilePath = '${relFilePath}';`,
+    `export const sourceRelativeFilePath = '${sourceRelativeFilePath}';`,
     ...[...usedImports.entries()].map(
       ([importModuleName, imports]) =>
         `import { ${imports.join(', ')} } from '${importModuleName}';`,

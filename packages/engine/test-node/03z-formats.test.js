@@ -6,14 +6,14 @@ const { expect } = chai;
 describe('Formats', () => {
   it('markdown', async () => {
     const { build, readOutput, writeSource } = setupTestEngine('fixtures/03-formats/md');
-    await writeSource('empty.rocket.md', 'empty.rocket.md relativeFilePath: "${relativeFilePath}"');
+    await writeSource('empty.rocket.md', 'empty.rocket.md sourceRelativeFilePath: "${sourceRelativeFilePath}"');
     await build();
 
     expect(readOutput('empty/index.html')).to.equal(
-      '<p>empty.rocket.md relativeFilePath: "empty.rocket.md"</p>',
+      '<p>empty.rocket.md sourceRelativeFilePath: "empty.rocket.md"</p>',
     );
     expect(readOutput('index.html')).to.equal(
-      '<p>index.rocket.md relativeFilePath: "index.rocket.md"</p>',
+      '<p>index.rocket.md sourceRelativeFilePath: "index.rocket.md"</p>',
     );
   });
 
@@ -22,15 +22,15 @@ describe('Formats', () => {
     const { build, readOutput, writeSource } = setupTestEngine('fixtures/03-formats/md');
     await writeSource(
       'empty.rocket.html',
-      'empty.rocket.html relativeFilePath: "${relativeFilePath}"',
+      'empty.rocket.html sourceRelativeFilePath: "${sourceRelativeFilePath}"',
     );
     await build();
 
     expect(readOutput('empty/index.html')).to.equal(
-      '<p>empty.rocket.html relativeFilePath: "empty.rocket.html"</p>',
+      '<p>empty.rocket.html sourceRelativeFilePath: "empty.rocket.html"</p>',
     );
     expect(readOutput('index.html')).to.equal(
-      '<p>index.rocket.html relativeFilePath: "index.rocket.html"</p>',
+      '<p>index.rocket.html sourceRelativeFilePath: "index.rocket.html"</p>',
     );
   });
 });

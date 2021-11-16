@@ -1,5 +1,5 @@
 /* START - Rocket auto generated - do not touch */
-export const relativeFilePath = 'index.rocket.js';
+export const sourceRelativeFilePath = 'index.rocket.js';
 import { layout, title, titleFn } from './thisDir.rocketData.js';
 export { layout, title, titleFn };
 /* END - Rocket auto generated - do not touch */

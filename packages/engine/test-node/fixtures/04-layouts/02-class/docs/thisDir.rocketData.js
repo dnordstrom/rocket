@@ -8,7 +8,7 @@ export const layout = new Layout();
 
 // {
 //   header__10: () => {
-//     setCurrent(tree, data.relativeFilePath);
+//     setCurrent(tree, data.sourceRelativeFilePath);
 //     return new IndexMenu().render(tree);
 //   }
 // }

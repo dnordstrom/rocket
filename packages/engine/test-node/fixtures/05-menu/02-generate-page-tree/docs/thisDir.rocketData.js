@@ -6,7 +6,7 @@ await pageTree.restore();
 
 export const layout = async (content, data) => {
   return `
-    ${await pageTree.renderMenu(new Site(), data.relativeFilePath)}
+    ${await pageTree.renderMenu(new Site(), data.sourceRelativeFilePath)}
     <main>${content}</main>
   `;
 };

@@ -76,10 +76,10 @@ export class PageTree {
     // }
     // const { relativeFilePath, outputFilePath } = page;
     // const htmlMetaData = await getHtmlMetaData(outputFilePath);
-    // const outputRelativeFilePath = pathToUrl(relativeFilePath);
+    // const outputRelativeFilePath = pathToUrl(sourceRelativeFilePath);
     // const pageData = {
     //   ...htmlMetaData,
-    //   url: sourceRelativeFilePathToUrl(relativeFilePath),
+    //   url: sourceRelativeFilePathToUrl(sourceRelativeFilePath),
     //   outputRelativeFilePath,
     //   sourceRelativeFilePath: relativeFilePath,
     //   level: outputRelativeFilePath.split('/').length - 1,

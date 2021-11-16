@@ -73,8 +73,8 @@ export class Engine {
 
     for (const sourceFilePath of sourceFiles) {
       await updateRocketHeader(sourceFilePath, this.docsDir);
-      const { outputWriteFilePath, relativeFilePath } = await this.renderFile(sourceFilePath);
-      await pageTree.add(relativeFilePath);
+      const { outputWriteFilePath, sourceRelativeFilePath } = await this.renderFile(sourceFilePath);
+      await pageTree.add(sourceRelativeFilePath);
     }
 
     await pageTree.save();

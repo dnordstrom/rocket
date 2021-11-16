@@ -10,51 +10,51 @@ describe('Engine Data Cascade', () => {
     );
     await writeSource(
       'empty.rocket.js',
-      'export default `empty.rocket.js relativeFilePath: "${relativeFilePath}"`;',
+      'export default `empty.rocket.js sourceRelativeFilePath: "${sourceRelativeFilePath}"`;',
     );
     await build();
 
     expect(readSource('empty.rocket.js')).to.equal(
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'empty.rocket.js';",
+        "export const sourceRelativeFilePath = 'empty.rocket.js';",
         '/* END - Rocket auto generated - do not touch */',
         '',
-        'export default `empty.rocket.js relativeFilePath: "${relativeFilePath}"`;',
+        'export default `empty.rocket.js sourceRelativeFilePath: "${sourceRelativeFilePath}"`;',
       ].join('\n'),
     );
     expect(readOutput('empty/index.html')).to.equal(
-      'empty.rocket.js relativeFilePath: "empty.rocket.js"',
+      'empty.rocket.js sourceRelativeFilePath: "empty.rocket.js"',
     );
 
     expect(readSource('index.rocket.js')).to.equal(
       [
         `/* START - Rocket auto generated - do not touch */`,
-        "export const relativeFilePath = 'index.rocket.js';",
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
         `/* END - Rocket auto generated - do not touch */`,
         '',
-        'export default `index.rocket.js relativeFilePath: "${relativeFilePath}"`;',
+        'export default `index.rocket.js sourceRelativeFilePath: "${sourceRelativeFilePath}"`;',
         '',
       ].join('\n'),
     );
     expect(readOutput('index.html')).to.equal(
-      'index.rocket.js relativeFilePath: "index.rocket.js"',
+      'index.rocket.js sourceRelativeFilePath: "index.rocket.js"',
     );
 
     expect(readSource('sub-dir/index.rocket.js')).to.equal(
       [
         [
           `/* START - Rocket auto generated - do not touch */`,
-          "export const relativeFilePath = 'sub-dir/index.rocket.js';",
+          "export const sourceRelativeFilePath = 'sub-dir/index.rocket.js';",
           `/* END - Rocket auto generated - do not touch */`,
           '',
-          'export default `sub-dir/index.rocket.js relativeFilePath: "${relativeFilePath}"`;',
+          'export default `sub-dir/index.rocket.js sourceRelativeFilePath: "${sourceRelativeFilePath}"`;',
           '',
         ].join('\n'),
       ].join('\n'),
     );
     expect(readOutput('sub-dir/index.html')).to.equal(
-      'sub-dir/index.rocket.js relativeFilePath: "sub-dir/index.rocket.js"',
+      'sub-dir/index.rocket.js sourceRelativeFilePath: "sub-dir/index.rocket.js"',
     );
   });
 
@@ -71,7 +71,7 @@ describe('Engine Data Cascade', () => {
     expect(readSource('index.rocket.js')).to.equal(
       [
         `/* START - Rocket auto generated - do not touch */`,
-        "export const relativeFilePath = 'index.rocket.js';",
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
         "import { onRootLevel } from './thisDir.rocketData.js';",
         'export { onRootLevel };',
         `/* END - Rocket auto generated - do not touch */`,
@@ -83,7 +83,7 @@ describe('Engine Data Cascade', () => {
     expect(readSource('about.rocket.js')).to.equal(
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'about.rocket.js';",
+        "export const sourceRelativeFilePath = 'about.rocket.js';",
         "import { onRootLevel } from './thisDir.rocketData.js';",
         'export { onRootLevel };',
         '/* END - Rocket auto generated - do not touch */',
@@ -95,7 +95,7 @@ describe('Engine Data Cascade', () => {
     expect(readSource('components/accordion.rocket.js')).to.equal(
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'components/accordion.rocket.js';",
+        "export const sourceRelativeFilePath = 'components/accordion.rocket.js';",
         "import { inComponents } from './thisDir.rocketData.js';",
         'export { inComponents };',
         '/* END - Rocket auto generated - do not touch */',
@@ -107,7 +107,7 @@ describe('Engine Data Cascade', () => {
     expect(readSource('components/tabs.rocket.js')).to.equal(
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'components/tabs.rocket.js';",
+        "export const sourceRelativeFilePath = 'components/tabs.rocket.js';",
         "import { inComponents } from './thisDir.rocketData.js';",
         'export { inComponents };',
         '/* END - Rocket auto generated - do not touch */',
@@ -127,7 +127,7 @@ describe('Engine Data Cascade', () => {
     expect(readSource('index.rocket.js')).to.equal(
       [
         `/* START - Rocket auto generated - do not touch */`,
-        "export const relativeFilePath = 'index.rocket.js';",
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
         "import { foo, bar } from './thisDir.rocketData.js';",
         'export { foo, bar };',
         `/* END - Rocket auto generated - do not touch */`,
@@ -151,7 +151,7 @@ describe('Engine Data Cascade', () => {
     expect(readSource('index.rocket.js')).to.equal(
       [
         `/* START - Rocket auto generated - do not touch */`,
-        "export const relativeFilePath = 'index.rocket.js';",
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
         "import { options as originalOptions } from './thisDir.rocketData.js';",
         `/* END - Rocket auto generated - do not touch */`,
         '',

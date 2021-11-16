@@ -20,7 +20,7 @@ describe('Engine start', () => {
     expect(readSource('index.rocket.js')).to.equal(
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'index.rocket.js';",
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
         '/* END - Rocket auto generated - do not touch */',
         '',
         "export default 'updated index';",
@@ -39,7 +39,7 @@ describe('Engine start', () => {
       'index.rocket.js',
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'index.rocket.js';",
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
         "import { some } from './thisDir.rocketData.js';",
         'export { some }',
         '/* END - Rocket auto generated - do not touch */',
@@ -51,7 +51,7 @@ describe('Engine start', () => {
       'about.rocket.js',
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'index.rocket.js';",
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
         "import { some } from './thisDir.rocketData.js';",
         'export { some }',
         '/* END - Rocket auto generated - do not touch */',
@@ -72,7 +72,7 @@ describe('Engine start', () => {
     expect(readSource('index.rocket.js')).to.equal(
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'index.rocket.js';",
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
         "import { some, more } from './thisDir.rocketData.js';",
         'export { some, more };',
         '/* END - Rocket auto generated - do not touch */',
@@ -83,7 +83,7 @@ describe('Engine start', () => {
     expect(readSource('about.rocket.js')).to.equal(
       [
         '/* START - Rocket auto generated - do not touch */',
-        "export const relativeFilePath = 'about.rocket.js';",
+        "export const sourceRelativeFilePath = 'about.rocket.js';",
         "import { some, more } from './thisDir.rocketData.js';",
         'export { some, more };',
         '/* END - Rocket auto generated - do not touch */',

@@ -1,7 +1,7 @@
 ```js server
 /* START - Rocket auto generated - do not touch */
-export const relativeFilePath = 'index.rocket.md';
+export const sourceRelativeFilePath = 'index.rocket.md';
 /* END - Rocket auto generated - do not touch */
 ```
 
-index.rocket.md relativeFilePath: "${relativeFilePath}"
+index.rocket.md sourceRelativeFilePath: "${sourceRelativeFilePath}"

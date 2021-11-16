@@ -5,8 +5,8 @@ import { Site } from '@web/menu';
  * @param {NodeOfPage} tree
  * @param {NodeOfPage} node
  */
-function setCurrent(tree, relativeFilePath) {
-  const currentNode = tree.first(entry => entry.model.sourceRelativeFilePath === relativeFilePath);
+function setCurrent(tree, sourceRelativeFilePath) {
+  const currentNode = tree.first(entry => entry.model.sourceRelativeFilePath === sourceRelativeFilePath);
   if (currentNode) {
     currentNode.model.current = true;
     for (const parent of currentNode.getPath()) {
@@ -28,8 +28,8 @@ function removeCurrent(tree) {
   }
 }
 
-async function renderMenu(inst, tree, relativeFilePath) {
-  setCurrent(tree, relativeFilePath);
+async function renderMenu(inst, tree, sourceRelativeFilePath) {
+  setCurrent(tree, sourceRelativeFilePath);
   inst.currentNode = tree.first(entry => entry.model.current === true);
   const output = await inst.render(tree);
   removeCurrent(tree);
@@ -38,7 +38,7 @@ async function renderMenu(inst, tree, relativeFilePath) {
 
 export const layout = async (content, data) => {
   return `
-    ${await renderMenu(new Site(), pageTree, data.relativeFilePath)}
+    ${await renderMenu(new Site(), pageTree, data.sourceRelativeFilePath)}
     <main>${content}</main>
   `;
 };

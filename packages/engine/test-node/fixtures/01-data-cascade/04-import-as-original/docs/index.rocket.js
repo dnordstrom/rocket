@@ -1,5 +1,5 @@
 /* START - Rocket auto generated - do not touch */
-export const relativeFilePath = 'index.rocket.js';
+export const sourceRelativeFilePath = 'index.rocket.js';
 import { options as originalOptions } from './thisDir.rocketData.js';
 /* END - Rocket auto generated - do not touch */
 
