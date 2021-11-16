@@ -17,13 +17,12 @@ function findSelf(child, tree) {
 }
 
 export class PageTree {
+  /**
+   * @param {string | URL} docsDir
+   */
   constructor(docsDir) {
-    this.docsDir = docsDir;
+    this.docsDir = docsDir instanceof URL ? docsDir.pathname : docsDir;
     this.dataFilePath = path.join(this.docsDir, 'pageTreeData.rocketGenerated.json');
-    this.treeModel = new TreeModel();
-  }
-
-  init() {
     this.treeModel = new TreeModel();
   }
 
@@ -52,7 +51,6 @@ export class PageTree {
       const self = findSelf(pageModel, this.tree);
       if (self) {
         console.log('NOT YET IMPLEMENTED');
-
       } else {
         const parent = findParent(pageModel, this.tree);
         if (parent) {
@@ -109,5 +107,38 @@ export class PageTree {
 
   async save() {
     await writeFile(this.dataFilePath, JSON.stringify(this.tree, null, 2));
+  }
+
+  /**
+   * @param {string} sourceRelativeFilePath
+   */
+  setCurrent(sourceRelativeFilePath) {
+    const currentNode = this.tree.first(
+      entry => entry.model.sourceRelativeFilePath === sourceRelativeFilePath,
+    );
+    if (currentNode) {
+      currentNode.model.current = true;
+      for (const parent of currentNode.getPath()) {
+        parent.model.active = true;
+      }
+    }
+  }
+
+  removeCurrent() {
+    const currentNode = this.tree.first(entry => entry.model.current === true);
+    if (currentNode) {
+      currentNode.model.current = false;
+      for (const parent of currentNode.getPath()) {
+        parent.model.active = false;
+      }
+    }
+  }
+
+  async renderMenu(inst, sourceRelativeFilePath) {
+    this.setCurrent(sourceRelativeFilePath);
+    inst.currentNode = this.tree.first(entry => entry.model.current === true);
+    const output = await inst.render(this.tree);
+    this.removeCurrent();
+    return output;
   }
 }
