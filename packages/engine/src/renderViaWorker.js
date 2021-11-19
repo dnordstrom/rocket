@@ -16,9 +16,14 @@ export function renderViaWorker({ filePath, outputDir, writeFileToDisk }) {
     worker.postMessage({ action: 'renderFile', filePath, outputDir, writeFileToDisk });
 
     worker.once('message', result => {
-      resolve(result);
+      if (result.filePath === filePath) {
+        resolve(result);
+      } else {
+        reject(new Error(`File path mismatch: ${result.filePath} !== ${filePath}`));
+      }
     });
     worker.once('error', error => {
+      console.log('GOT error', error);
       reject(error);
     });
   });

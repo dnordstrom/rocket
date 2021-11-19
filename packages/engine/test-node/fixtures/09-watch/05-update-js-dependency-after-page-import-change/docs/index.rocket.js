@@ -2,6 +2,6 @@
 export const sourceRelativeFilePath = 'index.rocket.js';
 /* END - Rocket auto generated - do not touch */
 
-import { name } from './name-initial.js';
+import { name } from './name.js';
 
 export default `name: "${name}"`;

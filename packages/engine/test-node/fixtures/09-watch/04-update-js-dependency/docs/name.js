@@ -1,1 +1,1 @@
-export const name = 'initial name';
+export const name = '🚀';

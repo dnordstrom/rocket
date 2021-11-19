@@ -2,9 +2,6 @@ import watcher from '@parcel/watcher';
 import { init, parse } from 'es-module-lexer';
 import { readFile } from 'fs/promises';
 import path from 'path';
-import fs from 'fs';
-
-import { debounce } from './helpers/debounce.js';
 
 await init;
 
@@ -25,36 +22,67 @@ export class Watcher {
 
   acceptPageUpdates = true;
 
+  _taskQueue = new Map();
+
   async init(initDir) {
     this.subscription = await watcher.subscribe(initDir, async (err, events) => {
       if (this.acceptPageUpdates) {
         for (const event of events) {
-          await this[event.type](event.path);
+          if (event.type === 'create') {
+            await this.addCreateTask(event.path);
+          }
+          if (event.type === 'update') {
+            await this.addUpdateTask(event.path);
+          }
+          if (event.type === 'delete') {
+            await this.addDeleteTask(event.path);
+          }
+        }
+        await this.executeTaskQueue();
+      } else {
+        for (const event of events) {
+          if (!this._taskQueue.has(event.path)) {
+            console.log(
+              `You saved ${event.path} while Rocket was busy building. Automatic rebuilding is not yet implemented please save again.`,
+            );
+          }
         }
       }
     });
   }
 
-  async update(sourceFilePath) {
+  async addUpdateTask(sourceFilePath) {
     for (const page of this.pages) {
       if (page.sourceFilePath === sourceFilePath || page.jsDependencies.includes(sourceFilePath)) {
-        this.acceptPageUpdates = false;
-        await this.callback(page);
-        await this.updatePage(page.sourceFilePath);
-        this.acceptPageUpdates = true;
+        this._taskQueue.set(page.sourceFilePath, { type: 'update' });
       }
     }
   }
 
-  async create(sourceFilePath) {
+  async addCreateTask(sourceFilePath) {
     if (sourceFilePath.endsWith('rocket.js')) {
-      const page = await this.addPage(sourceFilePath);
-      await this.callback(page);
+      this._taskQueue.set(sourceFilePath, { type: 'create' });
     }
   }
 
-  delete(sourceFilePath) {
+  async addDeleteTask(sourceFilePath) {
     console.log(`delete ${sourceFilePath}`);
+  }
+
+  async executeTaskQueue() {
+    this.acceptPageUpdates = false;
+    for (const [sourceFilePath, info] of this._taskQueue) {
+      await this.callback({ sourceFilePath });
+      if (info.type === 'create') {
+        await this.createPage(sourceFilePath);
+      }
+      if (info.type === 'update') {
+        await this.updatePage(sourceFilePath);
+      }
+    }
+    this.allDoneCallback();
+    this._taskQueue.clear();
+    this.acceptPageUpdates = true;
   }
 
   async updatePage(sourceFilePath) {
@@ -66,7 +94,7 @@ export class Watcher {
     }
   }
 
-  async addPage(sourceFilePath) {
+  async createPage(sourceFilePath) {
     const page = {
       sourceFilePath,
       jsDependencies: await getJsDependencies(sourceFilePath),
@@ -75,69 +103,22 @@ export class Watcher {
     return page;
   }
 
+  async deletePage(sourceFilePath) {
+    console.log('TO IMPLEMENT');
+  }
+
   async addPages(sourceFilePaths) {
     for (const sourceFilePath of sourceFilePaths) {
-      await this.addPage(sourceFilePath);
+      await this.createPage(sourceFilePath);
     }
   }
 
-  async watchPages(callback) {
+  async watchPages(callback, allDoneCallback) {
     this.callback = callback;
-    // this._watchPagesController = new AbortController();
-
-    // const deps = new Map();
-
-    // let acceptPageUpdates = true;
-
-    // for (const page of this.pages) {
-    //   fs.watch(
-    //     page.sourceFilePath,
-    //     { signal: this._watchPagesController.signal },
-    //     debounce(
-    //       async () => {
-    //         if (acceptPageUpdates) {
-    //           acceptPageUpdates = false;
-    //           await callback(page);
-    //           acceptPageUpdates = false;
-    //         }
-    //       },
-    //       25,
-    //       true,
-    //     ),
-    //   );
-
-    //   for (const jsDep of page.jsDependencies) {
-    //     if (deps.has(jsDep)) {
-    //       deps.get(jsDep).push(page);
-    //     } else {
-    //       deps.set(jsDep, [page]);
-    //     }
-    //   }
-    // }
-
-    // for (const [jsDep, pages] of deps) {
-    //   fs.watch(
-    //     jsDep,
-    //     { signal: this._watchPagesController.signal },
-    //     debounce(
-    //       async () => {
-    //         acceptPageUpdates = false;
-    //         for (const page of pages) {
-    //           await callback(page);
-    //         }
-    //         acceptPageUpdates = true;
-    //       },
-    //       25,
-    //       true,
-    //     ),
-    //   );
-    // }
+    this.allDoneCallback = allDoneCallback;
   }
 
   async cleanup() {
     await this.subscription.unsubscribe();
-    // if (this._watchPagesController) {
-    //   this._watchPagesController.abort();
-    // }
   }
 }

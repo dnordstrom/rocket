@@ -41,6 +41,7 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
     status: 200,
     outputWriteFilePath,
     fileContent,
+    filePath,
     sourceRelativeFilePath,
   });
 }

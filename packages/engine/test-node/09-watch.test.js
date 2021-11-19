@@ -8,7 +8,6 @@ describe('Engine start', () => {
     const { writeSource, cleanup, readSource, engine, anEngineEvent } = await setupTestEngine(
       'fixtures/09-watch/01-update-header/docs',
     );
-
     await writeSource('index.rocket.js', "export default 'index';");
     await new Promise(resolve => setTimeout(resolve, 10));
     expect(readSource('index.rocket.js')).to.equal("export default 'index';");
@@ -34,7 +33,6 @@ describe('Engine start', () => {
     const { writeSource, cleanup, readSource, engine, anEngineEvent } = await setupTestEngine(
       'fixtures/09-watch/02-update-header-on-dependency-change/docs',
     );
-
     await writeSource(
       'index.rocket.js',
       [
@@ -66,7 +64,6 @@ describe('Engine start', () => {
       'thisDir.rocketData.js',
       ["export const some = 'data';", "export const more = 'stuff';"].join('\n'),
     );
-
     await anEngineEvent('rocketUpdated');
 
     expect(readSource('index.rocket.js')).to.equal(
@@ -108,12 +105,14 @@ describe('Engine start', () => {
     await writeSource('index.rocket.js', "export default 'index';");
     await writeSource('about.rocket.js', "export default 'about';");
     await build();
+
     expect(readOutput('index.html')).to.equal('<my-layout>index</my-layout>');
     expect(readOutput('about/index.html')).to.equal('<my-layout>about</my-layout>');
 
     await engine.start();
     await writeSource('index.rocket.js', "export default 'updated index';");
     await anEngineEvent('rocketUpdated');
+
     expect(readOutput('index.html')).to.equal('<my-layout>updated index</my-layout>');
     expect(readOutput('about/index.html')).to.equal('<my-layout>about</my-layout>');
 
@@ -207,6 +206,7 @@ describe('Engine start', () => {
     await deleteSource('name.js');
     await deleteSource('about.rocket.js');
     await build();
+    expect(readOutput('index.html')).to.equal('index');
 
     await engine.start();
     await writeSource('name.js', "export const name = '🚀 stage 1';");

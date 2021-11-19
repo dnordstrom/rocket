@@ -38,10 +38,9 @@ export async function setupTestEngine(docsDir, options = {}) {
   }
   useOptions.outputDir = path.join(useOptions.docsDir, '..', '__output');
 
-  await rm(useOptions.outputDir, { recursive: true, force: true });
-
   const engine = new Engine();
   engine.setOptions(useOptions);
+  await engine.clearOutputDir();
 
   function readOutput(toInspect, { format = false } = {}) {
     const filePath = path.join(engine.outputDir, toInspect);
@@ -68,7 +67,7 @@ export async function setupTestEngine(docsDir, options = {}) {
 
   async function deleteSource(toInspect) {
     const filePath = path.join(engine.docsDir, toInspect);
-    await rm(filePath);
+    await rm(filePath, { force: true});
   }
 
   function outputExists(toInspect) {

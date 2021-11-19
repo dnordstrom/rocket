@@ -24,6 +24,7 @@ export class PageTree {
     this.docsDir = docsDir instanceof URL ? docsDir.pathname : docsDir;
     this.dataFilePath = path.join(this.docsDir, 'pageTreeData.rocketGenerated.json');
     this.treeModel = new TreeModel();
+    this.needsAnotherRenderingPass = false;
   }
 
   /**
@@ -50,7 +51,10 @@ export class PageTree {
     if (this.tree) {
       const self = findSelf(pageModel, this.tree);
       if (self) {
-        console.log('NOT YET IMPLEMENTED');
+        if (JSON.stringify(self) !== JSON.stringify(pageModel)) {
+          console.log('NOT YET IMPLEMENTED DIFFERENT', self, pageModel);
+        }
+        // this.needsAnotherRenderingPass = true;
       } else {
         const parent = findParent(pageModel, this.tree);
         if (parent) {
@@ -105,8 +109,8 @@ export class PageTree {
     this.tree = this.treeModel.parse(obj);
   }
 
-  async save() {
-    await writeFile(this.dataFilePath, JSON.stringify(this.tree, null, 2));
+  save() {
+    return writeFile(this.dataFilePath, JSON.stringify(this.tree, null, 2));
   }
 
   /**
