@@ -3,7 +3,7 @@ import { setupTestEngine, expectThrowsAsync } from './test-helpers.js';
 
 const { expect } = chai;
 
-describe('Engine start', () => {
+describe.only('Engine start', () => {
   it('updates rocket header on a *.rocket.js file change', async () => {
     const { writeSource, cleanup, readSource, engine, anEngineEvent } = await setupTestEngine(
       'fixtures/09-watch/01-update-header/docs',

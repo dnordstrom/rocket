@@ -18,7 +18,7 @@ async function getJsDependencies(sourceFilePath) {
 // TODO: consider https://github.com/parcel-bundler/watcher
 
 export class Watcher {
-  pages = [];
+  pages = new Map();
 
   acceptPageUpdates = true;
 
@@ -52,9 +52,9 @@ export class Watcher {
   }
 
   async addUpdateTask(sourceFilePath) {
-    for (const page of this.pages) {
-      if (page.sourceFilePath === sourceFilePath || page.jsDependencies.includes(sourceFilePath)) {
-        this._taskQueue.set(page.sourceFilePath, { type: 'update' });
+    for (const [pageSourceFilePath, page] of this.pages) {
+      if (pageSourceFilePath === sourceFilePath || page.jsDependencies.includes(sourceFilePath)) {
+        this._taskQueue.set(pageSourceFilePath, { type: 'update' });
       }
     }
   }
@@ -66,9 +66,9 @@ export class Watcher {
   }
 
   async addDeleteTask(sourceFilePath) {
-    for (const page of this.pages) {
-      if (page.sourceFilePath === sourceFilePath || page.jsDependencies.includes(sourceFilePath)) {
-        this._taskQueue.set(page.sourceFilePath, { type: 'delete' });
+    for (const [pageSourceFilePath, page] of this.pages) {
+      if (pageSourceFilePath === sourceFilePath || page.jsDependencies.includes(sourceFilePath)) {
+        this._taskQueue.set(pageSourceFilePath, { type: 'delete' });
       }
     }
   }
@@ -86,7 +86,7 @@ export class Watcher {
       }
       if (info.type === 'delete') {
         await this.deleteCallback({ sourceFilePath });
-        // await this.deletePage(sourceFilePath);
+        await this.deletePage(sourceFilePath);
       }
     }
     this.doneCallback();
@@ -95,9 +95,8 @@ export class Watcher {
   }
 
   async updatePage(sourceFilePath) {
-    const foundIndex = this.pages.findIndex(page => page.sourceFilePath === sourceFilePath);
-    if (foundIndex !== -1) {
-      this.pages[foundIndex].jsDependencies = await getJsDependencies(sourceFilePath);
+    if (this.pages.has(sourceFilePath)) {
+      this.pages.set(sourceFilePath, { jsDependencies: await getJsDependencies(sourceFilePath) });
     } else {
       throw new Error(`Page not found in watch index while trying to update: ${sourceFilePath}`);
     }
@@ -105,15 +104,18 @@ export class Watcher {
 
   async createPage(sourceFilePath) {
     const page = {
-      sourceFilePath,
       jsDependencies: await getJsDependencies(sourceFilePath),
     };
-    this.pages.push(page);
+    this.pages.set(sourceFilePath, page);
     return page;
   }
 
   async deletePage(sourceFilePath) {
-    console.log('TO IMPLEMENT');
+    if (this.pages.has(sourceFilePath)) {
+      this.pages.delete(sourceFilePath);
+    } else {
+      throw new Error(`Page not found in watch index while trying to delete: ${sourceFilePath}`);
+    }
   }
 
   async addPages(sourceFilePaths) {
