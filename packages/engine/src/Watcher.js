@@ -66,21 +66,30 @@ export class Watcher {
   }
 
   async addDeleteTask(sourceFilePath) {
-    console.log(`delete ${sourceFilePath}`);
+    for (const page of this.pages) {
+      if (page.sourceFilePath === sourceFilePath || page.jsDependencies.includes(sourceFilePath)) {
+        this._taskQueue.set(page.sourceFilePath, { type: 'delete' });
+      }
+    }
   }
 
   async executeTaskQueue() {
     this.acceptPageUpdates = false;
     for (const [sourceFilePath, info] of this._taskQueue) {
-      await this.callback({ sourceFilePath });
       if (info.type === 'create') {
+        await this.renderCallback({ sourceFilePath });
         await this.createPage(sourceFilePath);
       }
       if (info.type === 'update') {
+        await this.renderCallback({ sourceFilePath });
         await this.updatePage(sourceFilePath);
       }
+      if (info.type === 'delete') {
+        await this.deleteCallback({ sourceFilePath });
+        // await this.deletePage(sourceFilePath);
+      }
     }
-    this.allDoneCallback();
+    this.doneCallback();
     this._taskQueue.clear();
     this.acceptPageUpdates = true;
   }
@@ -113,9 +122,10 @@ export class Watcher {
     }
   }
 
-  async watchPages(callback, allDoneCallback) {
-    this.callback = callback;
-    this.allDoneCallback = allDoneCallback;
+  async watchPages(renderCallback, deleteCallback, doneCallback) {
+    this.renderCallback = renderCallback;
+    this.deleteCallback = deleteCallback;
+    this.doneCallback = doneCallback;
   }
 
   async cleanup() {

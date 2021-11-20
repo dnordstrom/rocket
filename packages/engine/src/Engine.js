@@ -15,6 +15,7 @@ import { updateRocketHeader } from './updateRocketHeader.js';
 import { Watcher } from './Watcher.js';
 
 import { PageTree } from './PageTree.js';
+import { sourceRelativeFilePathToOutputRelativeFilePath } from './urlPathConverter.js';
 
 export class Engine {
   /** @type {EngineOptions} */
@@ -75,7 +76,7 @@ export class Engine {
 
     for (const sourceFilePath of sourceFiles) {
       await updateRocketHeader(sourceFilePath, this.docsDir);
-      const { outputWriteFilePath, sourceRelativeFilePath } = await this.renderFile(sourceFilePath);
+      const { sourceRelativeFilePath } = await this.renderFile(sourceFilePath);
       await pageTree.add(sourceRelativeFilePath);
     }
 
@@ -111,6 +112,9 @@ export class Engine {
         await this.renderFile(page.sourceFilePath);
         // }
       },
+      async page => {
+        await this.deleteOutputOf(page.sourceFilePath);
+      },
       () => {
         this.events.emit('rocketUpdated');
       },
@@ -122,6 +126,18 @@ export class Engine {
       this.watcher.cleanup();
     }
     await cleanupWorker();
+  }
+
+  /**
+   * @param {string} sourceFilePath
+   */
+  async deleteOutputOf(sourceFilePath) {
+    const sourceRelativeFilePath = path.relative(this.docsDir, sourceFilePath);
+    const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(
+      sourceRelativeFilePath,
+    );
+    const outputFilePath = path.join(this.outputDir, outputRelativeFilePath);
+    await rm(outputFilePath, { force: true });
   }
 
   async renderFile(filePath, { writeFileToDisk = true } = {}) {

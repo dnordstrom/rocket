@@ -1,5 +1,5 @@
 import chai from 'chai';
-import { setupTestEngine } from './test-helpers.js';
+import { setupTestEngine, expectThrowsAsync } from './test-helpers.js';
 
 const { expect } = chai;
 
@@ -221,6 +221,31 @@ describe('Engine start', () => {
     );
     await anEngineEvent('rocketUpdated');
     expect(readOutput('about/index.html')).to.equal('name: "🚀 stage 1"');
+
+    await cleanup();
+  });
+
+  it('will delete the output file if a page gets deleted', async () => {
+    const {
+      build,
+      readOutput,
+      outputExists,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+      deleteSource,
+    } = await setupTestEngine('fixtures/09-watch/07-delete-page/docs');
+    await writeSource('about.rocket.js', 'export default `about`;');
+    await build();
+    expect(readOutput('index.html')).to.equal('index');
+    expect(readOutput('about/index.html')).to.equal('about');
+
+    await engine.start();
+    await deleteSource('about.rocket.js');
+    await anEngineEvent('rocketUpdated');
+
+    expect(outputExists('about/index.html')).to.be.false;
 
     await cleanup();
   });

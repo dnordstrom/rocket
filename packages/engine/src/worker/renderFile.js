@@ -17,7 +17,7 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
   const { sourceRelativeFilePath, layout } = data;
 
   const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(sourceRelativeFilePath);
-  const outputWriteFilePath = path.join(outputDir, outputRelativeFilePath);
+  const outputFilePath = path.join(outputDir, outputRelativeFilePath);
 
   let contentForLayout = content;
   if (toImportFilePath.endsWith('.rocket-generated-from-md.js')) {
@@ -31,15 +31,15 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
   }
 
   if (writeFileToDisk) {
-    if (!existsSync(path.dirname(outputWriteFilePath))) {
-      await mkdir(path.dirname(outputWriteFilePath), { recursive: true });
+    if (!existsSync(path.dirname(outputFilePath))) {
+      await mkdir(path.dirname(outputFilePath), { recursive: true });
     }
-    await writeFile(outputWriteFilePath, fileContent);
+    await writeFile(outputFilePath, fileContent);
   }
 
   parentPort.postMessage({
     status: 200,
-    outputWriteFilePath,
+    outputFilePath,
     fileContent,
     filePath,
     sourceRelativeFilePath,
