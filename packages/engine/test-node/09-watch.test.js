@@ -1,9 +1,9 @@
 import chai from 'chai';
-import { setupTestEngine, expectThrowsAsync } from './test-helpers.js';
+import { setupTestEngine } from './test-helpers.js';
 
 const { expect } = chai;
 
-describe.only('Engine start', () => {
+describe('Engine start', () => {
   it('updates rocket header on a *.rocket.js file change', async () => {
     const { writeSource, cleanup, readSource, engine, anEngineEvent } = await setupTestEngine(
       'fixtures/09-watch/01-update-header/docs',
@@ -247,6 +247,28 @@ describe.only('Engine start', () => {
 
     expect(outputExists('about/index.html')).to.be.false;
 
+    await cleanup();
+  });
+
+  it('continues after error in page rendering', async () => {
+    const {
+      readOutput,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+    } = await setupTestEngine('fixtures/09-watch/08-error-in-page/docs');
+    await writeSource('index.rocket.js', 'export default `index`;');
+
+    await engine.start();
+    await writeSource('index.rocket.js', 'export default `index ${name}`;');
+    await anEngineEvent('rocketUpdated');
+    expect(readOutput('index.html')).to.include('ReferenceError: name is not defined');
+
+    await writeSource('index.rocket.js', "const name = 'Home';\nexport default `index ${name}`;");
+    await anEngineEvent('rocketUpdated');
+
+    expect(readOutput('index.html')).to.equal('index Home');
     await cleanup();
   });
 });

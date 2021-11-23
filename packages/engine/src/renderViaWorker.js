@@ -23,7 +23,9 @@ export function renderViaWorker({ filePath, outputDir, writeFileToDisk }) {
       }
     });
     worker.once('error', error => {
-      console.log('GOT error', error);
+      // the worker is dead long live the worker
+      worker.unref();
+      worker = new Worker('./src/worker/renderFile.js');
       reject(error);
     });
   });

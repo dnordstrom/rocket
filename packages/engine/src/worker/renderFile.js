@@ -11,7 +11,6 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
   if (filePath.endsWith('.md')) {
     toImportFilePath = await convertMdFile(filePath);
   }
-
   const { default: content, ...data } = await import(toImportFilePath);
 
   const { sourceRelativeFilePath, layout } = data;

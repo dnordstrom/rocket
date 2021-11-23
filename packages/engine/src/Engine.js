@@ -2,7 +2,7 @@
 
 /** @typedef {import('../types/main').EngineOptions} EngineOptions */
 import { existsSync } from 'fs';
-import { mkdir, rm } from 'fs/promises';
+import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
 import { EventEmitter } from 'events';
 
@@ -107,9 +107,12 @@ export class Engine {
     this.watcher.watchPages(
       async page => {
         await updateRocketHeader(page.sourceFilePath, this.docsDir);
-
         // if (page.active) {  // TODO: add feature to only render pages currently open in the browser
-        await this.renderFile(page.sourceFilePath);
+        try {
+          await this.renderFile(page.sourceFilePath);
+        } catch (error) {
+          await this.writeErrorAsHtmlToOutput(page.sourceFilePath, error);
+        }
         // }
       },
       async page => {
@@ -132,12 +135,37 @@ export class Engine {
    * @param {string} sourceFilePath
    */
   async deleteOutputOf(sourceFilePath) {
+    await rm(this.getOutputFilePath(sourceFilePath), { force: true });
+  }
+
+  getOutputFilePath(sourceFilePath) {
     const sourceRelativeFilePath = path.relative(this.docsDir, sourceFilePath);
     const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(
       sourceRelativeFilePath,
     );
-    const outputFilePath = path.join(this.outputDir, outputRelativeFilePath);
-    await rm(outputFilePath, { force: true });
+    return path.join(this.outputDir, outputRelativeFilePath);
+  }
+
+  async writeErrorAsHtmlToOutput(sourceFilePath, error) {
+    const outputFilePath = this.getOutputFilePath(sourceFilePath);
+    const errorHtml = `
+      <html>
+        <head>
+          <title>${error.message}</title>
+        </head>
+        <body>
+          <h1>${error.message}</h1>
+          <pre>${error.stack}</pre>
+        </body>
+      </html>
+    `;
+    const outputFilePathDir = path.dirname(outputFilePath);
+
+    if (!existsSync(outputFilePathDir)) {
+      await mkdir(outputFilePathDir, { recursive: true });
+    }
+
+    await writeFile(outputFilePath, errorHtml);
   }
 
   async renderFile(filePath, { writeFileToDisk = true } = {}) {
