@@ -54,7 +54,7 @@ export class Watcher {
   async addUpdateTask(sourceFilePath) {
     for (const [pageSourceFilePath, page] of this.pages) {
       if (pageSourceFilePath === sourceFilePath || page.jsDependencies.includes(sourceFilePath)) {
-        this._taskQueue.set(pageSourceFilePath, { type: 'update' });
+        this._taskQueue.set(pageSourceFilePath, { ...page, type: 'update' });
       }
     }
   }
@@ -74,6 +74,9 @@ export class Watcher {
   }
 
   async executeTaskQueue() {
+    if (this._taskQueue.size === 0) {
+      return;
+    }
     this.acceptPageUpdates = false;
     for (const [sourceFilePath, info] of this._taskQueue) {
       if (info.type === 'create') {
@@ -81,7 +84,7 @@ export class Watcher {
         await this.createPage(sourceFilePath);
       }
       if (info.type === 'update') {
-        await this.renderCallback({ sourceFilePath });
+        await this.renderCallback({ ...info, sourceFilePath, isOpenedInBrowser: info.webSockets.size > 0 });
         await this.updatePage(sourceFilePath);
       }
       if (info.type === 'delete') {
@@ -96,9 +99,33 @@ export class Watcher {
 
   async updatePage(sourceFilePath) {
     if (this.pages.has(sourceFilePath)) {
-      this.pages.set(sourceFilePath, { jsDependencies: await getJsDependencies(sourceFilePath) });
+      const page = this.pages.get(sourceFilePath);
+      page.jsDependencies = await getJsDependencies(sourceFilePath);
+      this.pages.set(sourceFilePath, page);
     } else {
       throw new Error(`Page not found in watch index while trying to update: ${sourceFilePath}`);
+    }
+  }
+
+  addWebSocketToPage(sourceFilePath, webSocket) {
+    if (this.pages.has(sourceFilePath)) {
+      const page = this.pages.get(sourceFilePath);
+      if (!page.webSockets) {
+        page.webSockets = new Set();
+      }
+      page.webSockets.add(webSocket);
+      this.pages.set(sourceFilePath, page);
+    } else {
+      throw new Error(`Page not found in watch index while trying to add websocket: ${sourceFilePath}`);
+    }
+  }
+
+  removeWebSocket(webSocket) {
+    for (const [sourceFilePath, page] of this.pages.entries()) {
+      if (page.webSockets.has(webSocket)) {
+        page.webSockets.delete(webSocket);
+        this.pages.set(sourceFilePath, page);
+      }
     }
   }
 
@@ -131,6 +158,8 @@ export class Watcher {
   }
 
   async cleanup() {
-    await this.subscription.unsubscribe();
+    await this?.subscription?.unsubscribe();
+    this.pages.clear();
+    this._taskQueue.clear();
   }
 }

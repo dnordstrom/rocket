@@ -1,6 +1,26 @@
+import { existsSync } from 'fs';
 import path from 'path';
 
-export function urlToSourceRelativeFilePath() {}
+export function urlToSourceRelativeFilePath(url, rootDir) {
+  const sourceFilePath = urlToSourceFilePath(url, rootDir);
+  return path.relative(rootDir, sourceFilePath);
+}
+
+export function urlToSourceFilePath(url, rootDir) {
+  if (url.endsWith('/')) {
+    const potentialIndexFile = path.join(rootDir, url, 'index.rocket.js');
+    if (existsSync(potentialIndexFile)) {
+      return potentialIndexFile;
+    } else {
+      const potentialNamedFile = path.join(rootDir, `${url.slice(0, -1)}.rocket.js`);
+      if (existsSync(potentialNamedFile)) {
+        return potentialNamedFile;
+      }
+    }
+  }
+}
+
+
 export function outputRelativeFilePathToSourceRelativeFilePath() {}
 
 /**
@@ -47,14 +67,16 @@ export function sourceRelativeFilePathToOutputRelativeFilePath(relPath) {
 }
 
 /**
- * 
- * @param {string} sourceRelativeFilePath 
- * @returns 
+ *
+ * @param {string} sourceRelativeFilePath
+ * @returns
  */
 export function sourceRelativeFilePathToUrl(sourceRelativeFilePath) {
-  const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(sourceRelativeFilePath);
+  const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(
+    sourceRelativeFilePath,
+  );
 
   return outputRelativeFilePath.endsWith('index.html')
-    ? `/${outputRelativeFilePath.substring(0, outputRelativeFilePath.length - 10)}`
+    ? `/${outputRelativeFilePath.substring(0, outputRelativeFilePath.length - 'index.html'.length)}`
     : `/${outputRelativeFilePath}`;
 }

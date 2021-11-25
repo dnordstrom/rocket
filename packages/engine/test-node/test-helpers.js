@@ -67,7 +67,7 @@ export async function setupTestEngine(docsDir, options = {}) {
 
   async function deleteSource(toInspect) {
     const filePath = path.join(engine.docsDir, toInspect);
-    await rm(filePath, { force: true});
+    await rm(filePath, { force: true });
   }
 
   function outputExists(toInspect) {
@@ -92,6 +92,11 @@ export async function setupTestEngine(docsDir, options = {}) {
     engine.start();
   }
 
+  function setAsOpenedInBrowser(toInspect) {
+    const sourceFilePath = path.join(engine.docsDir, toInspect);
+    engine.watcher?.addWebSocketToPage(sourceFilePath, { send: () => {} });
+  }
+
   function anEngineEvent(eventName) {
     return new Promise((resolve, reject) => {
       engine.events.on(eventName, () => {
@@ -112,5 +117,6 @@ export async function setupTestEngine(docsDir, options = {}) {
     start,
     engine,
     anEngineEvent,
+    setAsOpenedInBrowser,
   };
 }

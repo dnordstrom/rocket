@@ -5,17 +5,20 @@ import { existsSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
 import { EventEmitter } from 'events';
+import { startDevServer } from '@web/dev-server';
 
 import { applyPlugins } from 'plugins-manager';
 
 import { gatherFiles } from './gatherFiles.js';
 import { cleanupWorker, renderViaWorker } from './renderViaWorker.js';
-import { debounce } from './helpers/debounce.js';
 import { updateRocketHeader } from './updateRocketHeader.js';
 import { Watcher } from './Watcher.js';
 
 import { PageTree } from './PageTree.js';
-import { sourceRelativeFilePathToOutputRelativeFilePath } from './urlPathConverter.js';
+import {
+  sourceRelativeFilePathToOutputRelativeFilePath,
+  urlToSourceFilePath,
+} from './urlPathConverter.js';
 
 export class Engine {
   /** @type {EngineOptions} */
@@ -28,10 +31,10 @@ export class Engine {
   events = new EventEmitter();
 
   /**
-   * @param {Partial<EngineOptions>} options
+   * @param {Partial<EngineOptions>} [options]
    */
-  constructor(options) {
-    this.setOptions(options);
+  constructor(options = {}) {
+    this.setOptions({ ...this.options, ...options });
   }
 
   /**
@@ -50,13 +53,14 @@ export class Engine {
       ...newOptions,
       setupPlugins,
     };
-    const defaultPlugins = [...this.options.defaultPlugins];
+
+    const defaultPlugins = this.options.defaultPlugins ? [...this.options.defaultPlugins] : [];
     delete this.options.defaultPlugins;
 
     this.options = applyPlugins(this.options, defaultPlugins);
 
     const { docsDir: userDocsDir, outputDir: userOutputDir } = this.options;
-    this.docsDir = userDocsDir ? path.resolve(userDocsDir) : process.cwd();
+    this.docsDir = userDocsDir ? path.resolve(userDocsDir) : path.join(process.cwd(), 'docs');
     this.outputDir = userOutputDir
       ? path.resolve(userOutputDir)
       : path.join(this.docsDir, '..', '_site');
@@ -87,6 +91,8 @@ export class Engine {
         await this.renderFile(sourceFilePath);
       }
     }
+
+    this.cleanup();
   }
 
   async clearOutputDir() {
@@ -94,26 +100,73 @@ export class Engine {
   }
 
   async start() {
-    await this.watchForRocketHeaderUpdate();
-  }
-
-  async watchForRocketHeaderUpdate() {
     const files = await gatherFiles(this.docsDir);
 
     this.watcher = new Watcher();
     await this.watcher.init(this.docsDir);
     await this.watcher.addPages(files);
 
+    function registerTabPlugin() {
+      return {
+        name: 'register-tab-plugin',
+        injectWebSocket: true,
+        serve(context) {
+          // you can serve a virtual module to be imported
+          if (context.path === '/ws-register-tab.js') {
+            return "import { sendMessage } from '/__web-dev-server__web-socket.js';\n export default () => { sendMessage({ type: 'register-tab', pathname: document.location.pathname }); }";
+          }
+        },
+      };
+    }
+
+    this.devServer = await startDevServer({
+      config: {
+        open: false,
+        rootDir: this.outputDir,
+        plugins: [registerTabPlugin()],
+      },
+      logStartMessage: false,
+      readCliArgs: false,
+      readFileConfig: false,
+      // argv: this.__argv,
+    });
+
+    this.devServer.webSockets.on('message', ({ webSocket, data }) => {
+      const sourceFilePath = this.getSourceFilePathFromUrl(data.pathname);
+      this.watcher?.addWebSocketToPage(sourceFilePath, webSocket);
+    });
+
+    this.devServer.webSockets.webSocketServer.on('connection', webSocket => {
+      webSocket.on('close', () => {
+        this.watcher?.removeWebSocket(webSocket);
+      });
+
+      webSocket.send(
+        JSON.stringify({ type: 'import', data: { importPath: '/ws-register-tab.js' } }),
+      );
+    });
+
     this.watcher.watchPages(
       async page => {
         await updateRocketHeader(page.sourceFilePath, this.docsDir);
-        // if (page.active) {  // TODO: add feature to only render pages currently open in the browser
-        try {
-          await this.renderFile(page.sourceFilePath);
-        } catch (error) {
-          await this.writeErrorAsHtmlToOutput(page.sourceFilePath, error);
+        if (page.isOpenedInBrowser) {
+          try {
+            await this.renderFile(page.sourceFilePath);
+          } catch (error) {
+            await this.writeErrorAsHtmlToOutput(page.sourceFilePath, error);
+          }
+          setTimeout(() => {
+            // TODO: @web/dev-server has a caching bug it seems need to wait some time before reloading
+            for (const webSocket of page.webSockets) {
+              webSocket.send(
+                JSON.stringify({
+                  type: 'import',
+                  data: { importPath: 'data:text/javascript,window.location.reload()' },
+                }),
+              );
+            }
+          }, 110);
         }
-        // }
       },
       async page => {
         await this.deleteOutputOf(page.sourceFilePath);
@@ -125,9 +178,8 @@ export class Engine {
   }
 
   async cleanup() {
-    if (this.watcher) {
-      this.watcher.cleanup();
-    }
+    this?.watcher?.cleanup();
+    this.devServer?.stop();
     await cleanupWorker();
   }
 
@@ -144,6 +196,10 @@ export class Engine {
       sourceRelativeFilePath,
     );
     return path.join(this.outputDir, outputRelativeFilePath);
+  }
+
+  getSourceFilePathFromUrl(url) {
+    return urlToSourceFilePath(url, this.docsDir);
   }
 
   async writeErrorAsHtmlToOutput(sourceFilePath, error) {

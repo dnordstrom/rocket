@@ -124,7 +124,7 @@ async function generateRocketHeader(content, { filePath, docsDir }) {
 }
 
 export async function updateRocketHeader(filePath, docsDir) {
-  const content = await readFile(filePath);
+  const content = (await readFile(filePath)).toString();
   const header = await generateRocketHeader(content, { filePath, docsDir });
   const updatedContent = setRocketHeader(content, header, filePath);
 

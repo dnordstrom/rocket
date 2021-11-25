@@ -1,5 +1,8 @@
 import chai from 'chai';
-import { sourceRelativeFilePathToOutputRelativeFilePath as sourceToOutput } from '../src/urlPathConverter.js';
+import {
+  sourceRelativeFilePathToOutputRelativeFilePath as sourceToOutput,
+  urlToSourceRelativeFilePath,
+} from '../src/urlPathConverter.js';
 
 const { expect } = chai;
 
@@ -87,5 +90,60 @@ describe('sourceRelativeFilePathToOutputRelativeFilePath', () => {
         'components/accordion.html',
       );
     });
+  });
+});
+
+describe('urlToSourceRelativeFilePath', () => {
+  function setupUrlToSource(fixturePath) {
+    const pathToFixtureDir = new URL(
+      `fixtures/01a-url-path-converters/${fixturePath}`,
+      import.meta.url,
+    ).pathname;
+    return url => urlToSourceRelativeFilePath(url, pathToFixtureDir);
+  }
+
+  describe('html files output', () => {
+    it('handles index.rocket.js urls', async () => {
+      const urlToSource = setupUrlToSource('01-index-rocket-files');
+      expect(urlToSource(`/`)).to.equal('index.rocket.js');
+      expect(urlToSource(`/components/`)).to.equal('components/index.rocket.js');
+    });
+
+    it('handles [name].rocket.js files', async () => {
+      const urlToSource = setupUrlToSource('02-named-rocket-files');
+      expect(urlToSource('/tabs/')).to.equal(`tabs.rocket.js`);
+      expect(urlToSource(`/components/accordion/`)).to.equal('components/accordion.rocket.js');
+    });
+
+    // it('handles [order]--[name].rocket.js files', async () => {
+    //   expect(urlToSource(`/tabs/`)).to.equal('01--tabs.rocket.js');
+    //   expect(urlToSource(`/components/accordion/`)).to.equal(
+    //     '01--components/01--accordion.rocket.js',
+    //   );
+    // });
+
+    // it('handles index.rocket.md files', async () => {
+    //   expect(sourceToOutput(`index.rocket.md`)).to.equal('index.html');
+    //   expect(sourceToOutput(`components/index.rocket.md`)).to.equal('components/index.html');
+    // });
+
+    // it('handles [name].rocket.md files', async () => {
+    //   expect(sourceToOutput(`tabs.rocket.md`)).to.equal('tabs/index.html');
+    //   expect(sourceToOutput(`components/accordion.rocket.md`)).to.equal(
+    //     'components/accordion/index.html',
+    //   );
+    // });
+
+    // it('handles index.rocket.html files', async () => {
+    //   expect(sourceToOutput(`index.rocket.html`)).to.equal('index.html');
+    //   expect(sourceToOutput(`components/index.rocket.html`)).to.equal('components/index.html');
+    // });
+
+    // it('handles [name].rocket.html files', async () => {
+    //   expect(sourceToOutput(`tabs.rocket.html`)).to.equal('tabs/index.html');
+    //   expect(sourceToOutput(`components/accordion.rocket.html`)).to.equal(
+    //     'components/accordion/index.html',
+    //   );
+    // });
   });
 });

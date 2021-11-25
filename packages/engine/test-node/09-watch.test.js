@@ -5,14 +5,20 @@ const { expect } = chai;
 
 describe('Engine start', () => {
   it('updates rocket header on a *.rocket.js file change', async () => {
-    const { writeSource, cleanup, readSource, engine, anEngineEvent } = await setupTestEngine(
-      'fixtures/09-watch/01-update-header/docs',
-    );
+    const {
+      writeSource,
+      cleanup,
+      readSource,
+      engine,
+      anEngineEvent,
+      setAsOpenedInBrowser,
+    } = await setupTestEngine('fixtures/09-watch/01-update-header/docs');
     await writeSource('index.rocket.js', "export default 'index';");
     await new Promise(resolve => setTimeout(resolve, 10));
     expect(readSource('index.rocket.js')).to.equal("export default 'index';");
 
     await engine.start();
+    setAsOpenedInBrowser('index.rocket.js');
     await writeSource('index.rocket.js', "export default 'updated index';");
     await anEngineEvent('rocketUpdated');
 
@@ -30,9 +36,14 @@ describe('Engine start', () => {
   });
 
   it('if started updates the header on file change', async () => {
-    const { writeSource, cleanup, readSource, engine, anEngineEvent } = await setupTestEngine(
-      'fixtures/09-watch/02-update-header-on-dependency-change/docs',
-    );
+    const {
+      writeSource,
+      cleanup,
+      readSource,
+      engine,
+      anEngineEvent,
+      setAsOpenedInBrowser,
+    } = await setupTestEngine('fixtures/09-watch/02-update-header-on-dependency-change/docs');
     await writeSource(
       'index.rocket.js',
       [
@@ -60,6 +71,8 @@ describe('Engine start', () => {
     await writeSource('thisDir.rocketData.js', 'export const some = "data";');
 
     await engine.start();
+    setAsOpenedInBrowser('index.rocket.js');
+    setAsOpenedInBrowser('about.rocket.js');
     await writeSource(
       'thisDir.rocketData.js',
       ["export const some = 'data';", "export const more = 'stuff';"].join('\n'),
@@ -100,6 +113,7 @@ describe('Engine start', () => {
       anEngineEvent,
       cleanup,
       engine,
+      setAsOpenedInBrowser,
     } = await setupTestEngine('fixtures/09-watch/03-update-single-page/docs');
 
     await writeSource('index.rocket.js', "export default 'index';");
@@ -110,6 +124,7 @@ describe('Engine start', () => {
     expect(readOutput('about/index.html')).to.equal('<my-layout>about</my-layout>');
 
     await engine.start();
+    setAsOpenedInBrowser('index.rocket.js');
     await writeSource('index.rocket.js', "export default 'updated index';");
     await anEngineEvent('rocketUpdated');
 
@@ -127,6 +142,7 @@ describe('Engine start', () => {
       anEngineEvent,
       cleanup,
       engine,
+      setAsOpenedInBrowser,
     } = await setupTestEngine('fixtures/09-watch/04-update-js-dependency/docs');
 
     await writeSource('name.js', "export const name = 'initial name';");
@@ -134,6 +150,7 @@ describe('Engine start', () => {
     expect(readOutput('index.html')).to.equal('name: "initial name"');
 
     await engine.start();
+    setAsOpenedInBrowser('index.rocket.js');
     await writeSource('name.js', "export const name = '🚀';");
     await anEngineEvent('rocketUpdated');
     expect(readOutput('index.html')).to.equal('name: "🚀"');
@@ -149,6 +166,7 @@ describe('Engine start', () => {
       anEngineEvent,
       cleanup,
       engine,
+      setAsOpenedInBrowser,
     } = await setupTestEngine(
       'fixtures/09-watch/05-update-js-dependency-after-page-import-change/docs',
     );
@@ -168,6 +186,7 @@ describe('Engine start', () => {
     expect(readOutput('index.html')).to.equal('name: "I am name-initial.js"');
 
     await engine.start();
+    setAsOpenedInBrowser('index.rocket.js');
     // will not trigger a write as not part of the jsDependencies
     await writeSource('name.js', "export const name = '🚀 stage 1';");
     await new Promise(resolve => setTimeout(resolve, 10));
@@ -193,7 +212,7 @@ describe('Engine start', () => {
     await cleanup();
   });
 
-  it('will render newly created pages', async () => {
+  it.skip('will render newly created pages as they get opened [to be implemented]', async () => {
     const {
       build,
       readOutput,
@@ -257,10 +276,12 @@ describe('Engine start', () => {
       anEngineEvent,
       cleanup,
       engine,
+      setAsOpenedInBrowser,
     } = await setupTestEngine('fixtures/09-watch/08-error-in-page/docs');
     await writeSource('index.rocket.js', 'export default `index`;');
 
     await engine.start();
+    setAsOpenedInBrowser('index.rocket.js');
     await writeSource('index.rocket.js', 'export default `index ${name}`;');
     await anEngineEvent('rocketUpdated');
     expect(readOutput('index.html')).to.include('ReferenceError: name is not defined');
