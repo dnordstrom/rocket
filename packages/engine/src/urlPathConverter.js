@@ -1,27 +1,38 @@
-import { existsSync } from 'fs';
 import path from 'path';
+import { gatherFiles } from './gatherFiles.js';
 
-export function urlToSourceRelativeFilePath(url, rootDir) {
-  const sourceFilePath = urlToSourceFilePath(url, rootDir);
+/**
+ * @param {string} url
+ * @param {string} rootDir
+ * @returns {Promise<string>}
+ */
+export async function urlToSourceRelativeFilePath(url, rootDir) {
+  const sourceFilePath = await urlToSourceFilePath(url, rootDir);
   return path.relative(rootDir, sourceFilePath);
 }
 
-export function urlToSourceFilePath(url, rootDir) {
-  if (url.endsWith('/')) {
-    const potentialIndexFile = path.join(rootDir, url, 'index.rocket.js');
-    if (existsSync(potentialIndexFile)) {
-      return potentialIndexFile;
-    } else {
-      const potentialNamedFile = path.join(rootDir, `${url.slice(0, -1)}.rocket.js`);
-      if (existsSync(potentialNamedFile)) {
-        return potentialNamedFile;
-      }
-    }
+/**
+ *
+ * @param {string} url
+ * @param {string} rootDir
+ * @returns {Promise<string>}
+ */
+export async function urlToSourceFilePath(url, rootDir) {
+  const sourceFiles = await gatherFiles(rootDir);
+  const urlToFileMap = new Map();
+
+  for (const sourceFilePath of sourceFiles) {
+    const sourceRelativeFilePath = path.relative(rootDir, sourceFilePath);
+    const url = sourceRelativeFilePathToUrl(sourceRelativeFilePath);
+    urlToFileMap.set(url, sourceFilePath);
   }
+
+  if (urlToFileMap.has(url)) {
+    return urlToFileMap.get(url);
+  }
+
+  throw new Error(`Could not find source file for url: ${url}`);
 }
-
-
-export function outputRelativeFilePathToSourceRelativeFilePath() {}
 
 /**
  * @param {string} name

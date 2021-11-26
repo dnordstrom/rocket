@@ -104,46 +104,53 @@ describe('urlToSourceRelativeFilePath', () => {
 
   describe('html files output', () => {
     it('handles index.rocket.js urls', async () => {
-      const urlToSource = setupUrlToSource('01-index-rocket-files');
-      expect(urlToSource(`/`)).to.equal('index.rocket.js');
-      expect(urlToSource(`/components/`)).to.equal('components/index.rocket.js');
+      const urlToSource = setupUrlToSource('01-index-rocket-js-files');
+      expect(await urlToSource(`/`)).to.equal('index.rocket.js');
+      expect(await urlToSource(`/components/`)).to.equal('components/index.rocket.js');
     });
 
     it('handles [name].rocket.js files', async () => {
-      const urlToSource = setupUrlToSource('02-named-rocket-files');
-      expect(urlToSource('/tabs/')).to.equal(`tabs.rocket.js`);
-      expect(urlToSource(`/components/accordion/`)).to.equal('components/accordion.rocket.js');
+      const urlToSource = setupUrlToSource('02-named-rocket-js-files');
+      expect(await urlToSource('/tabs/')).to.equal(`tabs.rocket.js`);
+      expect(await urlToSource(`/components/accordion/`)).to.equal(
+        'components/accordion.rocket.js',
+      );
     });
 
-    // it('handles [order]--[name].rocket.js files', async () => {
-    //   expect(urlToSource(`/tabs/`)).to.equal('01--tabs.rocket.js');
-    //   expect(urlToSource(`/components/accordion/`)).to.equal(
-    //     '01--components/01--accordion.rocket.js',
-    //   );
-    // });
+    it('handles [order]--[name].rocket.js files', async () => {
+      const urlToSource = setupUrlToSource('03-ordered-named-rocket-js-files');
+      expect(await urlToSource(`/tabs/`)).to.equal('01--tabs.rocket.js');
+      expect(await urlToSource(`/components/accordion/`)).to.equal(
+        '01--components/01--accordion.rocket.js',
+      );
+    });
 
-    // it('handles index.rocket.md files', async () => {
-    //   expect(sourceToOutput(`index.rocket.md`)).to.equal('index.html');
-    //   expect(sourceToOutput(`components/index.rocket.md`)).to.equal('components/index.html');
-    // });
+    it('handles index.rocket.md files', async () => {
+      const urlToSource = setupUrlToSource('04-index-rocket-md-files');
+      expect(await urlToSource(`/`)).to.equal('index.rocket.md');
+      expect(await urlToSource(`/components/`)).to.equal('components/index.rocket.md');
+    });
 
-    // it('handles [name].rocket.md files', async () => {
-    //   expect(sourceToOutput(`tabs.rocket.md`)).to.equal('tabs/index.html');
-    //   expect(sourceToOutput(`components/accordion.rocket.md`)).to.equal(
-    //     'components/accordion/index.html',
-    //   );
-    // });
+    it('handles [name].rocket.md files', async () => {
+      const urlToSource = setupUrlToSource('05-named-rocket-md-files');
+      expect(await urlToSource(`/tabs/`)).to.equal('tabs.rocket.md');
+      expect(await urlToSource(`/components/accordion/`)).to.equal(
+        'components/accordion.rocket.md',
+      );
+    });
 
-    // it('handles index.rocket.html files', async () => {
-    //   expect(sourceToOutput(`index.rocket.html`)).to.equal('index.html');
-    //   expect(sourceToOutput(`components/index.rocket.html`)).to.equal('components/index.html');
-    // });
+    it('handles index.rocket.html files', async () => {
+      const urlToSource = setupUrlToSource('07-index-rocket-html-files');
+      expect(await urlToSource(`/`)).to.equal('index.rocket.html');
+      expect(await urlToSource(`/components/`)).to.equal('components/index.rocket.html');
+    });
 
-    // it('handles [name].rocket.html files', async () => {
-    //   expect(sourceToOutput(`tabs.rocket.html`)).to.equal('tabs/index.html');
-    //   expect(sourceToOutput(`components/accordion.rocket.html`)).to.equal(
-    //     'components/accordion/index.html',
-    //   );
-    // });
+    it('handles [name].rocket.html files', async () => {
+      const urlToSource = setupUrlToSource('08-named-rocket-html-files');
+      expect(await urlToSource(`/tabs/`)).to.equal('tabs.rocket.html');
+      expect(await urlToSource(`/components/accordion/`)).to.equal(
+        'components/accordion.rocket.html',
+      );
+    });
   });
 });

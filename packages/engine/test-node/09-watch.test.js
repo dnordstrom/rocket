@@ -35,7 +35,38 @@ describe('Engine start', () => {
     await cleanup();
   });
 
-  it('if started updates the header on file change', async () => {
+  it.skip('updates rocket header on a *.rocket.js file change', async () => {
+    const {
+      writeSource,
+      cleanup,
+      readSource,
+      engine,
+      anEngineEvent,
+      setAsOpenedInBrowser,
+    } = await setupTestEngine('fixtures/09-watch/01-update-header/docs');
+    await writeSource('index.rocket.md', 'index');
+    await new Promise(resolve => setTimeout(resolve, 10));
+    expect(readSource('index.rocket.md')).to.equal('index');
+
+    await engine.start();
+    setAsOpenedInBrowser('index.rocket.md');
+    await writeSource('index.rocket.md', 'updated index');
+    await anEngineEvent('rocketUpdated');
+
+    expect(readSource('index.rocket.md')).to.equal(
+      [
+        '/* START - Rocket auto generated - do not touch */',
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
+        '/* END - Rocket auto generated - do not touch */',
+        '',
+        "export default 'updated index';",
+      ].join('\n'),
+    );
+
+    await cleanup();
+  });
+
+  it('if started updates the header on a dependency file change', async () => {
     const {
       writeSource,
       cleanup,
@@ -105,7 +136,7 @@ describe('Engine start', () => {
     await cleanup();
   });
 
-  it('rerenders only a single file when changing a single file', async () => {
+  it('rerenders only opened pages', async () => {
     const {
       build,
       readOutput,

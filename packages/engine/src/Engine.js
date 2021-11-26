@@ -131,8 +131,8 @@ export class Engine {
       // argv: this.__argv,
     });
 
-    this.devServer.webSockets.on('message', ({ webSocket, data }) => {
-      const sourceFilePath = this.getSourceFilePathFromUrl(data.pathname);
+    this.devServer.webSockets.on('message', async ({ webSocket, data }) => {
+      const sourceFilePath = await this.getSourceFilePathFromUrl(data.pathname);
       this.watcher?.addWebSocketToPage(sourceFilePath, webSocket);
     });
 
@@ -198,8 +198,8 @@ export class Engine {
     return path.join(this.outputDir, outputRelativeFilePath);
   }
 
-  getSourceFilePathFromUrl(url) {
-    return urlToSourceFilePath(url, this.docsDir);
+  async getSourceFilePathFromUrl(url) {
+    return await urlToSourceFilePath(url, this.docsDir);
   }
 
   async writeErrorAsHtmlToOutput(sourceFilePath, error) {
