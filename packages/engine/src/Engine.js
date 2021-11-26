@@ -67,12 +67,7 @@ export class Engine {
   }
 
   async build() {
-    if (!existsSync(this.outputDir)) {
-      await mkdir(this.outputDir, { recursive: true });
-    } else {
-      await this.clearOutputDir();
-    }
-
+    await this.prepareOutputDir();
     const pageTree = new PageTree(this.docsDir);
 
     // write files
@@ -99,21 +94,37 @@ export class Engine {
     await rm(this.outputDir, { recursive: true, force: true });
   }
 
+  async prepareOutputDir() {
+    if (!existsSync(this.outputDir)) {
+      await mkdir(this.outputDir, { recursive: true });
+    } else {
+      await this.clearOutputDir();
+    }
+  }
+
   async start() {
+    await this.prepareOutputDir();
     const files = await gatherFiles(this.docsDir);
 
     this.watcher = new Watcher();
     await this.watcher.init(this.docsDir);
     await this.watcher.addPages(files);
 
-    function registerTabPlugin() {
+    const registerTabPlugin = () => {
       return {
         name: 'register-tab-plugin',
         injectWebSocket: true,
-        serve(context) {
-          // you can serve a virtual module to be imported
+        serve: async (context) => {
           if (context.path === '/ws-register-tab.js') {
             return "import { sendMessage } from '/__web-dev-server__web-socket.js';\n export default () => { sendMessage({ type: 'register-tab', pathname: document.location.pathname }); }";
+          }
+
+          // generating files on demand
+          const sourceFilePath = await this.getSourceFilePathFromUrl(context.path);
+          const outputFilePath = this.getOutputFilePath(sourceFilePath);
+          if (!existsSync(outputFilePath)) {
+            await updateRocketHeader(sourceFilePath, this.docsDir);
+            await this.renderFile(sourceFilePath);
           }
         },
       };

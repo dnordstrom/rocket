@@ -15,7 +15,9 @@ async function getJsDependencies(sourceFilePath) {
   return jsDependencies;
 }
 
-// TODO: consider https://github.com/parcel-bundler/watcher
+function isRocketPageFile(filePath) {
+  return filePath.endsWith('.rocket.js') || filePath.endsWith('.rocket.md') || filePath.endsWith('.rocket.html');
+}
 
 export class Watcher {
   pages = new Map();
@@ -60,7 +62,7 @@ export class Watcher {
   }
 
   async addCreateTask(sourceFilePath) {
-    if (sourceFilePath.endsWith('rocket.js')) {
+    if (isRocketPageFile(sourceFilePath)) {
       this._taskQueue.set(sourceFilePath, { type: 'create' });
     }
   }
@@ -84,7 +86,8 @@ export class Watcher {
         await this.createPage(sourceFilePath);
       }
       if (info.type === 'update') {
-        await this.renderCallback({ ...info, sourceFilePath, isOpenedInBrowser: info.webSockets.size > 0 });
+        const isOpenedInBrowser = !!info.webSockets?.size ?? false;
+        await this.renderCallback({ ...info, sourceFilePath, isOpenedInBrowser });
         await this.updatePage(sourceFilePath);
       }
       if (info.type === 'delete') {
@@ -122,7 +125,7 @@ export class Watcher {
 
   removeWebSocket(webSocket) {
     for (const [sourceFilePath, page] of this.pages.entries()) {
-      if (page.webSockets.has(webSocket)) {
+      if (page.webSockets && page.webSockets.has(webSocket)) {
         page.webSockets.delete(webSocket);
         this.pages.set(sourceFilePath, page);
       }

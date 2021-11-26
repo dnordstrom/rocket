@@ -14,7 +14,6 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
   const { default: content, ...data } = await import(toImportFilePath);
 
   const { sourceRelativeFilePath, layout } = data;
-
   const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(sourceRelativeFilePath);
   const outputFilePath = path.join(outputDir, outputRelativeFilePath);
 
