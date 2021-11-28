@@ -36,6 +36,8 @@ function isHeadline(data) {
  * @returns
  */
 export function getHtmlMetaData(htmlFilePath) {
+  const fileName = path.basename(htmlFilePath);
+
   /** @type {ParseMetaData} */
   const metaData = {
     // headlinesWithId: [],
@@ -106,7 +108,7 @@ export function getHtmlMetaData(htmlFilePath) {
     });
     readable.on('end', () => {
       parser.end();
-      metaData.menuLinkText = metaData.menuLinkText || metaData.h1 || metaData.title;
+      metaData.menuLinkText = metaData.menuLinkText || metaData.h1 || metaData.title || fileName;
 
       resolve(metaData);
     });

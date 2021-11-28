@@ -1,22 +1,26 @@
 {
+  "menuLinkText": "index.rocket.js",
   "url": "/",
   "outputRelativeFilePath": "index.html",
   "sourceRelativeFilePath": "index.rocket.js",
   "level": 0,
   "children": [
     {
+      "menuLinkText": "adding-before.rocket.js",
       "url": "/adding-before/",
       "outputRelativeFilePath": "adding-before/index.html",
       "sourceRelativeFilePath": "adding-before.rocket.js",
       "level": 1
     },
     {
+      "menuLinkText": "layout-raw.rocket.js",
       "url": "/layout-raw/",
       "outputRelativeFilePath": "layout-raw/index.html",
       "sourceRelativeFilePath": "layout-raw.rocket.js",
       "level": 1
     },
     {
+      "menuLinkText": "show-data.rocket.js",
       "url": "/show-data/",
       "outputRelativeFilePath": "show-data/index.html",
       "sourceRelativeFilePath": "show-data.rocket.js",

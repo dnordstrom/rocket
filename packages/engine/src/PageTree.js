@@ -3,6 +3,7 @@ import { TreeModel } from '@d4kmor/tree-model';
 import { getHtmlMetaData } from './getHtmlMetaData.js';
 import { sourceRelativeFilePathToOutputRelativeFilePath, sourceRelativeFilePathToUrl } from './urlPathConverter.js';
 import { readFile, writeFile } from 'fs/promises';
+import { existsSync } from 'fs';
 
 function findParent(child, tree) {
   return tree.first(node => {
@@ -51,10 +52,17 @@ export class PageTree {
     if (this.tree) {
       const self = findSelf(pageModel, this.tree);
       if (self) {
-        if (JSON.stringify(self) !== JSON.stringify(pageModel)) {
-          console.log('NOT YET IMPLEMENTED DIFFERENT', self, pageModel);
+        // UPDATE - only if there is a difference (we do not care about children or headlinesWithId)
+        const existingModel = { ...self.model };
+        delete existingModel.children;
+        delete existingModel.headlinesWithId;
+        const newModel = { ...pageModel.model }
+        delete newModel.children;
+        delete newModel.headlinesWithId;
+        if (JSON.stringify(existingModel) !== JSON.stringify(newModel)) {
+          self.model = { ...self.model, ...pageModel.model };
+          this.needsAnotherRenderingPass = true;
         }
-        // this.needsAnotherRenderingPass = true;
       } else {
         const parent = findParent(pageModel, this.tree);
         if (parent) {
@@ -104,8 +112,11 @@ export class PageTree {
   }
 
   async restore() {
-    const content = await readFile(this.dataFilePath);
-    const obj = JSON.parse(content.toString());
+    let obj = {};
+    if (existsSync(this.dataFilePath)) {
+      const content = await readFile(this.dataFilePath);
+      obj = JSON.parse(content.toString());
+    }
     this.tree = this.treeModel.parse(obj);
   }
 

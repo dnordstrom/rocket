@@ -87,7 +87,7 @@ export class Engine {
       }
     }
 
-    this.cleanup();
+    await this.cleanup();
   }
 
   async clearOutputDir() {
@@ -106,6 +106,8 @@ export class Engine {
     await this.prepareOutputDir();
     const files = await gatherFiles(this.docsDir);
 
+    const pageTree = new PageTree(this.docsDir);
+    await pageTree.restore();
     this.watcher = new Watcher();
     await this.watcher.init(this.docsDir);
     await this.watcher.addPages(files);
@@ -125,6 +127,12 @@ export class Engine {
           if (!existsSync(outputFilePath)) {
             await updateRocketHeader(sourceFilePath, this.docsDir);
             await this.renderFile(sourceFilePath);
+            const sourceRelativeFilePath = path.relative(this.docsDir, sourceFilePath);
+            await pageTree.add(sourceRelativeFilePath);
+            await pageTree.save();
+            if (pageTree.needsAnotherRenderingPass) {
+              await this.renderFile(sourceFilePath);
+            }
           }
         },
       };
@@ -163,6 +171,13 @@ export class Engine {
         if (page.isOpenedInBrowser) {
           try {
             await this.renderFile(page.sourceFilePath);
+            const sourceRelativeFilePath = path.relative(this.docsDir, page.sourceFilePath);
+            await pageTree.add(sourceRelativeFilePath);
+            await pageTree.save();
+
+            if (pageTree.needsAnotherRenderingPass) {
+              await this.renderFile(page.sourceFilePath);
+            }
           } catch (error) {
             await this.writeErrorAsHtmlToOutput(page.sourceFilePath, error);
           }

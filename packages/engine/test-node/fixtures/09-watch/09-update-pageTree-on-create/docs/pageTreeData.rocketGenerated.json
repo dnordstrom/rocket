@@ -5,11 +5,20 @@
   "level": 0,
   "children": [
     {
+      "h1": "components",
+      "menuLinkText": "components",
+      "url": "/components/",
+      "outputRelativeFilePath": "components/index.html",
+      "sourceRelativeFilePath": "components.rocket.js",
+      "level": 1
+    },
+    {
+      "h1": "about",
+      "menuLinkText": "about",
       "url": "/about/",
       "outputRelativeFilePath": "about/index.html",
       "sourceRelativeFilePath": "about.rocket.js",
       "level": 1
     }
-  ],
-  "menuLinkText": "index.rocket.js"
+  ]
 }

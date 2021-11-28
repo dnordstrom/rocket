@@ -253,14 +253,9 @@ describe('Engine start', () => {
   });
 
   it('will render newly created pages as they get opened', async () => {
-    const {
-      readOutput,
-      writeSource,
-      anEngineEvent,
-      cleanup,
-      engine,
-      deleteSource,
-    } = await setupTestEngine('fixtures/09-watch/06-create-single-page/docs');
+    const { readOutput, writeSource, cleanup, engine, deleteSource } = await setupTestEngine(
+      'fixtures/09-watch/06-create-single-page/docs',
+    );
     await deleteSource('name.js');
     await deleteSource('about.rocket.js');
 
@@ -275,23 +270,24 @@ describe('Engine start', () => {
         'export default `name: "${name}"`;',
       ].join('\n'),
     );
-    await anEngineEvent('rocketUpdated');
     await fetch('http://localhost:8000/about/');
-    expect(readOutput('about/index.html', { format: 'html' })).to.equal([
-      '<!DOCTYPE html>',
-      '<html lang="en">',
-      '  <head>',
-      '    <meta charset="UTF-8" />',
-      '    <meta http-equiv="X-UA-Compatible" content="IE=edge" />',
-      '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
-      '    <title>Document</title>',
-      '  </head>',
-      '  <body>',
-      '    name: "🚀 stage 1"',
-      '  </body>',
-      '</html>',
-      ''
-    ].join('\n'));
+    expect(readOutput('about/index.html', { format: 'html' })).to.equal(
+      [
+        '<!DOCTYPE html>',
+        '<html lang="en">',
+        '  <head>',
+        '    <meta charset="UTF-8" />',
+        '    <meta http-equiv="X-UA-Compatible" content="IE=edge" />',
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+        '    <title>Document</title>',
+        '  </head>',
+        '  <body>',
+        '    name: "🚀 stage 1"',
+        '  </body>',
+        '</html>',
+        '',
+      ].join('\n'),
+    );
 
     await cleanup();
   });
@@ -342,6 +338,100 @@ describe('Engine start', () => {
     await anEngineEvent('rocketUpdated');
 
     expect(readOutput('index.html')).to.equal('index Home');
+    await cleanup();
+  });
+
+  it('updates the pageTree on creating a new page', async () => {
+    const {
+      readOutput,
+      writeSource,
+      readSource,
+      cleanup,
+      engine,
+      deleteSource,
+    } = await setupTestEngine('fixtures/09-watch/09-update-pageTree-on-create/docs');
+    await deleteSource('about.rocket.js');
+    await writeSource(
+      'pageTreeData.rocketGenerated.json',
+      [
+        '{',
+        '  "url": "/",',
+        '  "outputRelativeFilePath": "index.html",',
+        '  "sourceRelativeFilePath": "index.rocket.js",',
+        '  "level": 0,',
+        '  "children": [',
+        '    {',
+        '      "h1": "components",',
+        '      "menuLinkText": "components",',
+        '      "url": "/components/",',
+        '      "outputRelativeFilePath": "components/index.html",',
+        '      "sourceRelativeFilePath": "components.rocket.js",',
+        '      "level": 1',
+        '    }',
+        '  ]',
+        '}',
+      ].join('\n'),
+    );
+
+    await engine.start();
+    await writeSource(
+      'about.rocket.js',
+      [
+        //
+        'export default `<h1>about</h1>`;',
+      ].join('\n'),
+    );
+    await fetch('http://localhost:8000/about/');
+    expect(readSource('pageTreeData.rocketGenerated.json')).to.equal(
+      [
+        '{',
+        '  "url": "/",',
+        '  "outputRelativeFilePath": "index.html",',
+        '  "sourceRelativeFilePath": "index.rocket.js",',
+        '  "level": 0,',
+        '  "children": [',
+        '    {',
+        '      "h1": "components",',
+        '      "menuLinkText": "components",',
+        '      "url": "/components/",',
+        '      "outputRelativeFilePath": "components/index.html",',
+        '      "sourceRelativeFilePath": "components.rocket.js",',
+        '      "level": 1',
+        '    },',
+        '    {',
+        '      "h1": "about",',
+        '      "menuLinkText": "about",',
+        '      "url": "/about/",',
+        '      "outputRelativeFilePath": "about/index.html",',
+        '      "sourceRelativeFilePath": "about.rocket.js",',
+        '      "level": 1',
+        '    }',
+        '  ]',
+        '}',
+      ].join('\n'),
+    );
+
+    expect(readOutput('about/index.html', { format: 'html' })).to.equal([
+      '<!DOCTYPE html>',
+      '<html lang="en">',
+      '  <head>',
+      '    <meta charset="UTF-8" />',
+      '    <meta http-equiv="X-UA-Compatible" content="IE=edge" />',
+      '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+      '    <title>Document</title>',
+      '  </head>',
+      '  <body>',
+      '    <nav aria-label="site">',
+      '      <a href="/components/">components</a>',
+      '      <a href="/about/" aria-current="page">about</a>',
+      '    </nav>',
+      '',
+      '    <h1>about</h1>',
+      '  </body>',
+      '</html>',
+      ''
+    ].join('\n'));
+
     await cleanup();
   });
 });
