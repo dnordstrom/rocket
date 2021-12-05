@@ -436,4 +436,77 @@ describe('Engine start', () => {
 
     await cleanup();
   });
+
+  it('will rerender all open pages on pageTree change', async () => {
+    const {
+      readOutput,
+      outputExists,
+      setAsOpenedInBrowser,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+    } = await setupTestEngine('fixtures/09-watch/10-pageTree-change-rerenders-all-open/docs');
+    await writeSource('about.rocket.js', 'export default `<h1>about</h1>`;');
+
+    await engine.start();
+    setAsOpenedInBrowser('index.rocket.js');
+    setAsOpenedInBrowser('about.rocket.js');
+
+    await writeSource('about.rocket.js', 'export default `<h1>new about</h1>`;');
+    await anEngineEvent('rocketUpdated');
+
+    expect(readOutput('about/index.html', { format: 'html' })).to.equal(
+      [
+        '<!DOCTYPE html>',
+        '<html lang="en">',
+        '  <head>',
+        '    <meta charset="UTF-8" />',
+        '    <meta http-equiv="X-UA-Compatible" content="IE=edge" />',
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+        '    <title>Document</title>',
+        '  </head>',
+        '  <body>',
+        '    <nav aria-label="site">',
+        '      <a href="/about/" aria-current="page">about</a>',
+        '      <a href="/components/">components</a>',
+        '      <a href="/getting-started/">getting-started</a>',
+        '    </nav>',
+        '',
+        '    <h1>new about</h1>',
+        '  </body>',
+        '</html>',
+        '',
+      ].join('\n'),
+    );
+
+    expect(readOutput('index.html', { format: 'html' })).to.equal(
+      [
+        '<!DOCTYPE html>',
+        '<html lang="en">',
+        '  <head>',
+        '    <meta charset="UTF-8" />',
+        '    <meta http-equiv="X-UA-Compatible" content="IE=edge" />',
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+        '    <title>Document</title>',
+        '  </head>',
+        '  <body>',
+        '    <nav aria-label="site">',
+        '      <a href="/about/">about</a>',
+        '      <a href="/components/">components</a>',
+        '      <a href="/getting-started/">getting-started</a>',
+        '    </nav>',
+        '',
+        '    index',
+        '  </body>',
+        '</html>',
+        '',
+      ].join('\n'),
+    );
+
+    // does not render page not opened in browser
+    expect(outputExists('getting-started/index.html')).to.be.false;
+
+    await cleanup();
+  });
 });

@@ -133,6 +133,8 @@ export class Engine {
               await pageTree.save();
               if (pageTree.needsAnotherRenderingPass) {
                 await this.renderFile(sourceFilePath);
+                await this.renderAllOpenedFiles();
+                pageTree.needsAnotherRenderingPass = false;
               }
             }
           }
@@ -178,7 +180,8 @@ export class Engine {
             await pageTree.save();
 
             if (pageTree.needsAnotherRenderingPass) {
-              await this.renderFile(page.sourceFilePath);
+              await this.renderAllOpenedFiles();
+              pageTree.needsAnotherRenderingPass = false;
             }
           } catch (error) {
             await this.writeErrorAsHtmlToOutput(page.sourceFilePath, error);
@@ -250,6 +253,17 @@ export class Engine {
     }
 
     await writeFile(outputFilePath, errorHtml);
+  }
+
+  async renderAllOpenedFiles() {
+    if (this.watcher) {
+      for (const [sourceFilePath, page] of this.watcher.pages.entries()) {
+        const isOpenedInBrowser = !!page.webSockets?.size ?? false;
+        if (isOpenedInBrowser) {
+          await this.renderFile(sourceFilePath);
+        }
+      }
+    }
   }
 
   async renderFile(filePath, { writeFileToDisk = true } = {}) {
