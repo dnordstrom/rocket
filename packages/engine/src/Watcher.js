@@ -16,7 +16,11 @@ async function getJsDependencies(sourceFilePath) {
 }
 
 function isRocketPageFile(filePath) {
-  return filePath.endsWith('.rocket.js') || filePath.endsWith('.rocket.md') || filePath.endsWith('.rocket.html');
+  return (
+    filePath.endsWith('.rocket.js') ||
+    filePath.endsWith('.rocket.md') ||
+    filePath.endsWith('.rocket.html')
+  );
 }
 
 export class Watcher {
@@ -43,7 +47,12 @@ export class Watcher {
         await this.executeTaskQueue();
       } else {
         for (const event of events) {
-          if (!this._taskQueue.has(event.path)) {
+          if (
+            this._taskQueue.has(event.path) ||
+            event.path.endsWith('pageTreeData.rocketGenerated.json')
+          ) {
+            // file is either in queue or is the pageTreeData.rocketGenerated.json file
+          } else {
             console.log(
               `You saved ${event.path} while Rocket was busy building. Automatic rebuilding is not yet implemented please save again.`,
             );
@@ -119,7 +128,9 @@ export class Watcher {
       page.webSockets.add(webSocket);
       this.pages.set(sourceFilePath, page);
     } else {
-      throw new Error(`Page not found in watch index while trying to add websocket: ${sourceFilePath}`);
+      throw new Error(
+        `Page not found in watch index while trying to add websocket: ${sourceFilePath}`,
+      );
     }
   }
 
