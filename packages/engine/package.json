@@ -19,7 +19,8 @@
   },
   "type": "module",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./server": "./src/index.server.js"
   },
   "scripts": {
     "test": "mocha --timeout 5000 test-node/**/*.test.{js,cjs} test-node/*.test.{js,cjs}",

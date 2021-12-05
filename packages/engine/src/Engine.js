@@ -123,15 +123,17 @@ export class Engine {
 
           // generating files on demand
           const sourceFilePath = await this.getSourceFilePathFromUrl(context.path);
-          const outputFilePath = this.getOutputFilePath(sourceFilePath);
-          if (!existsSync(outputFilePath)) {
-            await updateRocketHeader(sourceFilePath, this.docsDir);
-            await this.renderFile(sourceFilePath);
-            const sourceRelativeFilePath = path.relative(this.docsDir, sourceFilePath);
-            await pageTree.add(sourceRelativeFilePath);
-            await pageTree.save();
-            if (pageTree.needsAnotherRenderingPass) {
+          if (sourceFilePath) {
+            const outputFilePath = this.getOutputFilePath(sourceFilePath);
+            if (!existsSync(outputFilePath)) {
+              await updateRocketHeader(sourceFilePath, this.docsDir);
               await this.renderFile(sourceFilePath);
+              const sourceRelativeFilePath = path.relative(this.docsDir, sourceFilePath);
+              await pageTree.add(sourceRelativeFilePath);
+              await pageTree.save();
+              if (pageTree.needsAnotherRenderingPass) {
+                await this.renderFile(sourceFilePath);
+              }
             }
           }
         },

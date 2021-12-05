@@ -112,12 +112,11 @@ export class PageTree {
   }
 
   async restore() {
-    let obj = {};
     if (existsSync(this.dataFilePath)) {
       const content = await readFile(this.dataFilePath);
-      obj = JSON.parse(content.toString());
+      const obj = JSON.parse(content.toString());
+      this.tree = this.treeModel.parse(obj);
     }
-    this.tree = this.treeModel.parse(obj);
   }
 
   save() {

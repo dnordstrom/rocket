@@ -4,18 +4,20 @@ import { gatherFiles } from './gatherFiles.js';
 /**
  * @param {string} url
  * @param {string} rootDir
- * @returns {Promise<string>}
+ * @returns {Promise<string | undefined>}
  */
 export async function urlToSourceRelativeFilePath(url, rootDir) {
   const sourceFilePath = await urlToSourceFilePath(url, rootDir);
-  return path.relative(rootDir, sourceFilePath);
+  if (sourceFilePath) {
+    return path.relative(rootDir, sourceFilePath);
+  }
 }
 
 /**
  *
  * @param {string} url
  * @param {string} rootDir
- * @returns {Promise<string>}
+ * @returns {Promise<string | undefined>}
  */
 export async function urlToSourceFilePath(url, rootDir) {
   const sourceFiles = await gatherFiles(rootDir);
@@ -31,7 +33,7 @@ export async function urlToSourceFilePath(url, rootDir) {
     return urlToFileMap.get(url);
   }
 
-  throw new Error(`Could not find source file for url: ${url}`);
+  // throw new Error(`Could not find source file for url: ${url}`);
 }
 
 /**

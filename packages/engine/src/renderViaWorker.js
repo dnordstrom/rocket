@@ -1,13 +1,15 @@
 import { Worker } from 'worker_threads';
 
-let worker = new Worker('./src/worker/renderFile.js');
+const workerFilePath = new URL('./worker/renderFile.js', import.meta.url).pathname;
+
+let worker = new Worker(workerFilePath);
 const history = new Set();
 
 export function renderViaWorker({ filePath, outputDir, writeFileToDisk }) {
   if (history.has(filePath)) {
     // trying rerender the same file => needs a new worker to clear the module cache
     worker.unref();
-    worker = new Worker('./src/worker/renderFile.js');
+    worker = new Worker(workerFilePath);
     history.clear();
   }
   history.add(filePath);
