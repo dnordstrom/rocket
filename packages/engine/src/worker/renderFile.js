@@ -8,7 +8,7 @@ import { convertMdFile } from '../converts.js';
 
 async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
   let toImportFilePath = filePath;
-  if (filePath.endsWith('.md')) {
+  if (filePath.endsWith('.rocket.md')) {
     toImportFilePath = await convertMdFile(filePath);
   }
   const { default: content, ...data } = await import(toImportFilePath);
@@ -18,7 +18,7 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
   const outputFilePath = path.join(outputDir, outputRelativeFilePath);
 
   let contentForLayout = content;
-  if (toImportFilePath.endsWith('.rocket-generated-from-md.js')) {
+  if (toImportFilePath.endsWith('.rocketGeneratedFromMd.js')) {
     const mdjs = await mdjsProcess(content);
     contentForLayout = mdjs.html;
   }

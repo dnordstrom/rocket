@@ -2,15 +2,21 @@ import watcher from '@parcel/watcher';
 import { init, parse } from 'es-module-lexer';
 import { readFile } from 'fs/promises';
 import path from 'path';
+import { convertMdFile } from './converts.js';
 
 await init;
 
 async function getJsDependencies(sourceFilePath) {
-  const sourceBuffer = await readFile(sourceFilePath, 'utf8');
+  let toImportFilePath = sourceFilePath;
+  if (sourceFilePath.endsWith('.rocket.md')) {
+    toImportFilePath = await convertMdFile(sourceFilePath);
+  }
+
+  const sourceBuffer = await readFile(toImportFilePath, 'utf8');
   const [imports] = parse(sourceBuffer.toString());
 
   const jsDependencies = imports.map(importObj => {
-    return path.join(path.dirname(sourceFilePath), importObj.n);
+    return path.join(path.dirname(toImportFilePath), importObj.n);
   });
   return jsDependencies;
 }

@@ -200,6 +200,30 @@ describe('Engine start', () => {
     await cleanup();
   });
 
+  it('rerenders on a js dependency change [in md]', async () => {
+    const {
+      build,
+      readOutput,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+      setAsOpenedInBrowser,
+    } = await setupTestEngine('fixtures/09-watch/04b-update-js-dependency-md/docs');
+
+    await writeSource('name.js', "export const name = 'initial name';");
+    await build();
+    expect(readOutput('index.html')).to.equal('<p>name: "initial name"</p>');
+
+    await engine.start();
+    setAsOpenedInBrowser('index.rocket.md');
+    await writeSource('name.js', "export const name = '🚀';");
+    await anEngineEvent('rocketUpdated');
+    expect(readOutput('index.html')).to.equal('<p>name: "🚀"</p>');
+
+    await cleanup();
+  });
+
   it('rerenders on a js dependency change after an import change in the page', async () => {
     const {
       readOutput,
