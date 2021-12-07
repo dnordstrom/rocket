@@ -95,4 +95,63 @@ describe('Engine menus', () => {
       ].join('\n'),
     );
   });
+
+  it('works with external layouts', async () => {
+    const { readOutput, build } = await setupTestEngine(
+      'fixtures/05-menu/03-dependency-layout/docs',
+    );
+    await build();
+
+    expect(readOutput('index.html', { format: 'html' })).to.equal(
+      [
+        '<!DOCTYPE html>',
+        '<html lang="en-US">',
+        '  <head> </head>',
+        '  <body>',
+        '    <header></header>',
+        '    <div class="content-area">',
+        '      <div id="sidebar">',
+        '        <nav aria-label="site">',
+        '          <a href="/about/">About</a>',
+        '          <a href="/components/">Components</a>',
+        '        </nav>',
+        '      </div>',
+        '      <main class="markdown-body">',
+        '        <meta name="menu:link.text" content="Home" />',
+        '        <h1>This is Home</h1>',
+        '      </main>',
+        '    </div>',
+        '    <footer></footer>',
+        '  </body>',
+        '</html>',
+        '',
+      ].join('\n'),
+    );
+
+    expect(readOutput('about/index.html', { format: 'html' })).to.equal(
+      [
+        '<!DOCTYPE html>',
+        '<html lang="en-US">',
+        '  <head> </head>',
+        '  <body>',
+        '    <header></header>',
+        '    <div class="content-area">',
+        '      <div id="sidebar">',
+        '        <nav aria-label="site">',
+        '          <a href="/about/" aria-current="page">About</a>',
+        '          <a href="/components/">Components</a>',
+        '        </nav>',
+        '      </div>',
+        '      <main class="markdown-body">',
+        '        <meta name="menu:link.text" content="About" />',
+        '        <h1>This is About</h1>',
+        '      </main>',
+        '    </div>',
+        '    <footer></footer>',
+        '  </body>',
+        '</html>',
+        '',
+      ].join('\n'),
+    );
+  });
 });

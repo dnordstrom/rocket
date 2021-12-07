@@ -3,9 +3,9 @@
  * @param {string} groupName
  * @param {Record<string, unknown>} options
  * @param {Record<string, unknown>} data
- * @returns {string}
+ * @returns {Promise<string>}
  */
-export function renderJoiningGroup(groupName, options, data) {
+export async function renderJoiningGroup(groupName, options, data) {
   /**
    * @type { {order: number, stringValue: string}[] }
    */
@@ -14,7 +14,7 @@ export function renderJoiningGroup(groupName, options, data) {
     const value = options[key];
     if (key.startsWith(`${groupName}__`)) {
       const order = parseInt(key.substr(groupName.length + 2), 10);
-      const stringValue = typeof value === 'function' ? value(data, options) : value;
+      const stringValue = typeof value === 'function' ? await value(data, options) : value;
       group.push({
         order,
         stringValue,

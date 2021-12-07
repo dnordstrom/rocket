@@ -33,51 +33,51 @@ export class Layout {
     }
   }
 
-  renderHead() {
+  async renderHead() {
     return [
       //
       '<head>',
-      renderJoiningGroup('head', this.options, this.data),
+      await renderJoiningGroup('head', this.options, this.data),
       '</head>',
     ].join('\n');
   }
 
-  renderHeader() {
+  async renderHeader() {
     return [
       //
       '<header>',
-      renderJoiningGroup('header', this.options, this.data),
+      await renderJoiningGroup('header', this.options, this.data),
       '</header>',
     ].join('\n');
   }
 
-  renderFooter() {
+  async renderFooter() {
     return [
       //
       '<footer>',
-      renderJoiningGroup('footer', this.options, this.data),
+      await renderJoiningGroup('footer', this.options, this.data),
       '</footer>',
     ].join('\n');
   }
 
-  renderBody() {
+  async renderBody() {
     return [
       //
       '<body>',
-      renderJoiningGroup('top', this.options, this.data),
-      this.renderHeader(),
-      this.renderContent(),
-      this.renderFooter(),
-      renderJoiningGroup('bottom', this.options, this.data),
+      await renderJoiningGroup('top', this.options, this.data),
+      await this.renderHeader(),
+      await this.renderContent(),
+      await this.renderFooter(),
+      await renderJoiningGroup('bottom', this.options, this.data),
       '</body>',
     ].join('\n');
   }
 
-  renderContent() {
+  async renderContent() {
     return [
       //
       '<main>',
-      renderJoiningGroup('content', this.options, this.data),
+      await renderJoiningGroup('content', this.options, this.data),
       '</main>',
     ].join('\n');
   }
@@ -85,9 +85,9 @@ export class Layout {
   /**
    * @param {string} content
    * @param {Record<string, unknown>} data
-   * @returns {string}
+   * @returns {Promise<string>}
    */
-  render(content, data) {
+  async render(content, data) {
     this.data = data;
     this.options.content__500 = content;
 
@@ -100,8 +100,8 @@ export class Layout {
       //
       '<!DOCTYPE html>',
       `<html lang="${this.options.lang}">`,
-      this.renderHead(),
-      this.renderBody(),
+      await this.renderHead(),
+      await this.renderBody(),
       '</html>',
     ].join('\n');
 
