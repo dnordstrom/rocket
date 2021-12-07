@@ -1,11 +1,14 @@
 /* START - Rocket auto generated - do not touch */
 export const sourceRelativeFilePath = 'show-data.rocket.js';
-import { layout as originalLayout } from './thisDir.rocketData.js';
+import { layout } from './thisDir.rocketData.js';
+export { layout };
 /* END - Rocket auto generated - do not touch */
 
-import { html, Layout } from '@rocket/engine';
+import { html } from '@rocket/engine';
 
-export const layout = new Layout({ ...originalLayout.options, content__10: (data) => `<p>content__10 ${data.magic}</p>` });
+layout.setOptions(sourceRelativeFilePath,{
+  content__10: (data) => html`<p>content__10 ${data.magic}</p>`
+});
 
 export const magic = '🎉';
 

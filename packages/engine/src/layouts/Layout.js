@@ -2,9 +2,35 @@ import { renderJoiningGroup } from '../helpers/renderJoiningGroup.js';
 
 export class Layout {
   constructor(options = {}) {
-    /** @type {Record<string, string>} */
-    this.options = options;
+    this.options = {
+      lang: 'en-US',
+    };
+    this.setGlobalOptions(options);
     this.data = {};
+    this.pageOptions = new Map();
+  }
+
+  /**
+   * @param {Record<string, unknown>} options
+   */
+  setGlobalOptions(options) {
+    this.options = { ...this.options, ...options };
+  }
+
+  /**
+   *
+   * @param {string} sourceRelativeFilePath
+   * @param {Record<string, unknown>} options
+   */
+  setOptions(sourceRelativeFilePath, options) {
+    if (this.pageOptions.has(sourceRelativeFilePath)) {
+      this.pageOptions.set(sourceRelativeFilePath, {
+        ...this.pageOptions.get(sourceRelativeFilePath),
+        ...options,
+      });
+    } else {
+      this.pageOptions.set(sourceRelativeFilePath, options);
+    }
   }
 
   renderHead() {
@@ -65,12 +91,21 @@ export class Layout {
     this.data = data;
     this.options.content__500 = content;
 
-    return [
+    const originalOptions = { ...this.options };
+    if (this.pageOptions.has(data.sourceRelativeFilePath)) {
+      this.setGlobalOptions(this.pageOptions.get(data.sourceRelativeFilePath));
+    }
+
+    const output = [
       //
-      '<html>',
+      '<!DOCTYPE html>',
+      `<html lang="${this.options.lang}">`,
       this.renderHead(),
       this.renderBody(),
       '</html>',
     ].join('\n');
+
+    this.options = originalOptions;
+    return output;
   }
 }

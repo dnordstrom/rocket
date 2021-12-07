@@ -63,7 +63,8 @@ describe('Layouts', () => {
 
     expect(readOutput('index.html', { format: 'html' })).to.equal(
       [
-        '<html>',
+        '<!DOCTYPE html>',
+        '<html lang="en-US">',
         '  <head> </head>',
         '  <body>',
         '    <header></header>',
@@ -79,7 +80,8 @@ describe('Layouts', () => {
 
     expect(readOutput('adding-before/index.html', { format: 'html' })).to.equal(
       [
-        '<html>',
+        '<!DOCTYPE html>',
+        '<html lang="de-DE">',
         '  <head> </head>',
         '  <body>',
         '    <header></header>',
@@ -96,7 +98,8 @@ describe('Layouts', () => {
 
     expect(readOutput('show-data/index.html', { format: 'html' })).to.equal(
       [
-        '<html>',
+        '<!DOCTYPE html>',
+        '<html lang="en-US">',
         '  <head> </head>',
         '  <body>',
         '    <header></header>',
