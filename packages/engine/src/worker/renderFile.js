@@ -19,7 +19,11 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
 
   let contentForLayout = content;
   if (toImportFilePath.endsWith('.rocketGeneratedFromMd.js')) {
-    const mdjs = await mdjsProcess(content);
+    const options = {};
+    if (data.setupUnifiedPlugins) {
+      options.setupUnifiedPlugins = data.setupUnifiedPlugins;
+    }
+    const mdjs = await mdjsProcess(content, options);
     contentForLayout = mdjs.html;
   }
 
