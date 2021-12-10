@@ -210,4 +210,50 @@ describe('Engine Data Cascade', () => {
       ].join('\n'),
     );
   });
+
+  it('`thisDir.rocketData.js` overwrites data from `thisAndSubDirs.rocketData.js`', async () => {
+    const { build, readSource, writeSource } = await setupTestEngine(
+      'fixtures/01-data-cascade/06-this-dir-overwrite/docs',
+    );
+    await writeSource('index.rocket.js', 'export default `index`;');
+    await writeSource('components/index.rocket.js', 'export default `components/index`;');
+    await writeSource('components/tabs.rocket.js', 'export default `components/tabs`;');
+    await build();
+
+    expect(readSource('index.rocket.js')).to.equal(
+      [
+        `/* START - Rocket auto generated - do not touch */`,
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
+        "import { fromRoot } from './thisAndSubDirs.rocketData.js';",
+        'export { fromRoot };',
+        `/* END - Rocket auto generated - do not touch */`,
+        '',
+        'export default `index`;',
+      ].join('\n'),
+    );
+
+    expect(readSource('components/index.rocket.js')).to.equal(
+      [
+        '/* START - Rocket auto generated - do not touch */',
+        "export const sourceRelativeFilePath = 'components/index.rocket.js';",
+        "import { fromRoot } from './thisDir.rocketData.js';",
+        'export { fromRoot };',
+        '/* END - Rocket auto generated - do not touch */',
+        '',
+        'export default `components/index`;',
+      ].join('\n'),
+    );
+
+    expect(readSource('components/tabs.rocket.js')).to.equal(
+      [
+        '/* START - Rocket auto generated - do not touch */',
+        "export const sourceRelativeFilePath = 'components/tabs.rocket.js';",
+        "import { fromRoot } from './thisDir.rocketData.js';",
+        'export { fromRoot };',
+        '/* END - Rocket auto generated - do not touch */',
+        '',
+        'export default `components/tabs`;',
+      ].join('\n'),
+    );
+  });
 });

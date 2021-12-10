@@ -6,13 +6,6 @@
   "level": 0,
   "children": [
     {
-      "menuLinkText": "about.rocket.js",
-      "url": "/about/",
-      "outputRelativeFilePath": "about/index.html",
-      "sourceRelativeFilePath": "about.rocket.js",
-      "level": 1
-    },
-    {
       "menuLinkText": "index.rocket.js",
       "url": "/components/",
       "outputRelativeFilePath": "components/index.html",

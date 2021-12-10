@@ -48,15 +48,7 @@ async function generateRocketHeader(content, { filePath, docsDir }) {
     },
   ];
 
-  // Add `thisDir.rocketData.js` if available
-  const thisDirFilePath = path.join(path.dirname(filePath), 'thisDir.rocketData.js');
-  if (fs.existsSync(thisDirFilePath)) {
-    dataFiles.push({
-      filePath: thisDirFilePath,
-      exportModuleName: './thisDir.rocketData.js',
-    });
-  }
-
+  // Use all `thisAndSubDirs.rocketData.js` files up the tree
   let possibleParent = path.dirname(filePath);
   while (possibleParent.startsWith(docsDir)) {
     const thisAndSubDirsFilePath = path.join(possibleParent, 'thisAndSubDirs.rocketData.js');
@@ -69,6 +61,15 @@ async function generateRocketHeader(content, { filePath, docsDir }) {
       });
     }
     possibleParent = path.dirname(possibleParent);
+  }
+
+  // Add `thisDir.rocketData.js` if available
+  const thisDirFilePath = path.join(path.dirname(filePath), 'thisDir.rocketData.js');
+  if (fs.existsSync(thisDirFilePath)) {
+    dataFiles.push({
+      filePath: thisDirFilePath,
+      exportModuleName: './thisDir.rocketData.js',
+    });
   }
 
   const possibleImports = [];
