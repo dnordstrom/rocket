@@ -141,11 +141,14 @@ describe('Engine Data Cascade', () => {
     const { build, readSource, writeSource } = await setupTestEngine(
       'fixtures/01-data-cascade/04-import-as-original/docs',
     );
-    await writeSource('index.rocket.js', [
-      "export const options = { ...originalOptions, b: 'bValue' };",
-      '',
-      'export default JSON.stringify(options, null, 2);'
-    ].join('\n'));
+    await writeSource(
+      'index.rocket.js',
+      [
+        "export const options = { ...originalOptions, b: 'bValue' };",
+        '',
+        'export default JSON.stringify(options, null, 2);',
+      ].join('\n'),
+    );
     await build();
 
     expect(readSource('index.rocket.js')).to.equal(
@@ -157,7 +160,53 @@ describe('Engine Data Cascade', () => {
         '',
         "export const options = { ...originalOptions, b: 'bValue' };",
         '',
-        'export default JSON.stringify(options, null, 2);'
+        'export default JSON.stringify(options, null, 2);',
+      ].join('\n'),
+    );
+  });
+
+  it('injects data from `thisAndSubDirs.rocketData.js`', async () => {
+    const { build, readSource, writeSource } = await setupTestEngine(
+      'fixtures/01-data-cascade/05-this-and-sub-dirs/docs',
+    );
+    await writeSource('index.rocket.js', 'export default `index`;');
+    await writeSource('about.rocket.js', 'export default `about`;');
+    await writeSource('components/index.rocket.js', 'export default `components/index`;');
+    await build();
+
+    expect(readSource('index.rocket.js')).to.equal(
+      [
+        `/* START - Rocket auto generated - do not touch */`,
+        "export const sourceRelativeFilePath = 'index.rocket.js';",
+        "import { fromRoot } from './thisAndSubDirs.rocketData.js';",
+        'export { fromRoot };',
+        `/* END - Rocket auto generated - do not touch */`,
+        '',
+        'export default `index`;',
+      ].join('\n'),
+    );
+
+    expect(readSource('about.rocket.js')).to.equal(
+      [
+        '/* START - Rocket auto generated - do not touch */',
+        "export const sourceRelativeFilePath = 'about.rocket.js';",
+        "import { fromRoot } from './thisAndSubDirs.rocketData.js';",
+        'export { fromRoot };',
+        '/* END - Rocket auto generated - do not touch */',
+        '',
+        'export default `about`;',
+      ].join('\n'),
+    );
+
+    expect(readSource('components/index.rocket.js')).to.equal(
+      [
+        '/* START - Rocket auto generated - do not touch */',
+        "export const sourceRelativeFilePath = 'components/index.rocket.js';",
+        "import { fromRoot } from '../thisAndSubDirs.rocketData.js';",
+        'export { fromRoot };',
+        '/* END - Rocket auto generated - do not touch */',
+        '',
+        'export default `components/index`;',
       ].join('\n'),
     );
   });

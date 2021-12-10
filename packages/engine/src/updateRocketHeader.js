@@ -57,6 +57,20 @@ async function generateRocketHeader(content, { filePath, docsDir }) {
     });
   }
 
+  let possibleParent = path.dirname(filePath);
+  while (possibleParent.startsWith(docsDir)) {
+    const thisAndSubDirsFilePath = path.join(possibleParent, 'thisAndSubDirs.rocketData.js');
+    const fileDir = path.dirname(filePath);
+    if (fs.existsSync(thisAndSubDirsFilePath)) {
+      const rel = path.relative(fileDir, thisAndSubDirsFilePath);
+      dataFiles.push({
+        filePath: thisAndSubDirsFilePath,
+        exportModuleName: rel.startsWith('.') ? rel : `./${rel}`,
+      });
+    }
+    possibleParent = path.dirname(possibleParent);
+  }
+
   const possibleImports = [];
   for (const dataFile of dataFiles) {
     const { filePath: dataFilePath, exportModuleName } = dataFile;
@@ -82,7 +96,9 @@ async function generateRocketHeader(content, { filePath, docsDir }) {
   for (const thisExport of thisExports) {
     const foundIndex = possibleImports.findIndex(el => el.importName === thisExport);
     if (foundIndex >= 0) {
-      const asOriginalVariableName = `original${capitalizeFirstLetter(possibleImports[foundIndex].importName)}`;
+      const asOriginalVariableName = `original${capitalizeFirstLetter(
+        possibleImports[foundIndex].importName,
+      )}`;
       if (contentWithoutRocketHeader.includes(asOriginalVariableName)) {
         // import { variableName as originalVariableName } instead
         possibleImports[foundIndex].as = asOriginalVariableName;

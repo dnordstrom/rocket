@@ -73,17 +73,19 @@ export class Engine {
     // write files
     const sourceFiles = await gatherFiles(this.docsDir);
 
-    for (const sourceFilePath of sourceFiles) {
-      await updateRocketHeader(sourceFilePath, this.docsDir);
-      const { sourceRelativeFilePath } = await this.renderFile(sourceFilePath);
-      await pageTree.add(sourceRelativeFilePath);
-    }
-
-    await pageTree.save();
-
-    if (pageTree.needsAnotherRenderingPass) {
+    if (sourceFiles.length > 0) {
       for (const sourceFilePath of sourceFiles) {
-        await this.renderFile(sourceFilePath);
+        await updateRocketHeader(sourceFilePath, this.docsDir);
+        const { sourceRelativeFilePath } = await this.renderFile(sourceFilePath);
+        await pageTree.add(sourceRelativeFilePath);
+      }
+
+      await pageTree.save();
+
+      if (pageTree.needsAnotherRenderingPass) {
+        for (const sourceFilePath of sourceFiles) {
+          await this.renderFile(sourceFilePath);
+        }
       }
     }
 
@@ -116,7 +118,7 @@ export class Engine {
       return {
         name: 'register-tab-plugin',
         injectWebSocket: true,
-        serve: async (context) => {
+        serve: async context => {
           if (context.path === '/ws-register-tab.js') {
             return "import { sendMessage } from '/__web-dev-server__web-socket.js';\n export default () => { sendMessage({ type: 'register-tab', pathname: document.location.pathname }); }";
           }
@@ -140,7 +142,7 @@ export class Engine {
           }
         },
       };
-    }
+    };
 
     this.devServer = await startDevServer({
       config: {
