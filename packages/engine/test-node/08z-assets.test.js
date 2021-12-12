@@ -4,7 +4,7 @@ import { setupTestEngine } from './test-helpers.js';
 
 const { expect } = chai;
 
-describe.only('Assets', () => {
+describe('Assets', () => {
   it('image in index file', async () => {
     const { readOutput, engine, cleanup } = await setupTestEngine('fixtures/08-assets/01-image-in-index/docs');
     await engine.start();

@@ -26,6 +26,7 @@ export class PageTree {
     this.dataFilePath = path.join(this.docsDir, 'pageTreeData.rocketGenerated.json');
     this.treeModel = new TreeModel();
     this.needsAnotherRenderingPass = false;
+    this.pageTreeChangedOnSave = false;
   }
 
   /**
@@ -119,8 +120,19 @@ export class PageTree {
     }
   }
 
-  save() {
-    return writeFile(this.dataFilePath, JSON.stringify(this.tree, null, 2));
+  async save() {
+    this.pageTreeChangedOnSave = false;
+    const newContent = JSON.stringify(this.tree, null, 2);
+    if (existsSync(this.dataFilePath)) {
+      const content = await readFile(this.dataFilePath);
+      if (content.toString() !== newContent) {
+        this.pageTreeChangedOnSave = true;
+        await writeFile(this.dataFilePath, newContent);
+      }
+    } else {
+      this.pageTreeChangedOnSave = true;
+      await writeFile(this.dataFilePath, newContent);
+    }
   }
 
   /**

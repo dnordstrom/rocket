@@ -82,7 +82,7 @@ export class Engine {
 
       await pageTree.save();
 
-      if (pageTree.needsAnotherRenderingPass) {
+      if (pageTree.pageTreeChangedOnSave) {
         for (const sourceFilePath of sourceFiles) {
           await this.renderFile(sourceFilePath);
         }

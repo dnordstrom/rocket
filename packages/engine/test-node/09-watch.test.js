@@ -341,7 +341,7 @@ describe('Engine start', () => {
     await cleanup();
   });
 
-  it('continues after error in page rendering', async () => {
+  it.skip('continues after error in page rendering', async () => {
     const {
       readOutput,
       writeSource,

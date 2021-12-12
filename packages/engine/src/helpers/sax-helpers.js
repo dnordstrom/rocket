@@ -37,6 +37,22 @@ export function getAttribute(data, name) {
 
 /**
  * @param {Tag} data
+ * @param {string} name
+ */
+export function getAttributeMeta(data, name) {
+  if (data.attributes) {
+    const { attributes } = data;
+    const foundIndex = attributes.findIndex(entry => entry.name.value === name);
+    if (foundIndex !== -1) {
+      const entry = attributes[foundIndex].value;
+      return { value: entry.value, start: entry.start, end: entry.end };
+    }
+  }
+  return undefined;
+}
+
+/**
+ * @param {Tag} data
  */
 export function getText(data) {
   if (data.textNodes) {
