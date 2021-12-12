@@ -141,6 +141,24 @@ export class Engine {
             }
           }
         },
+        transform: async context => {
+          const sourceFilePath = await this.getSourceFilePathFromUrl(context.path);
+          if (sourceFilePath) {
+            const outputFilePath = this.getOutputFilePath(sourceFilePath);
+            const newBody = context.body.replace(/<img src="(.*?)"/g, (match, url) => {
+              const assetFilePath = path.join(path.dirname(outputFilePath), url);
+              let relPath = path.relative(this.outputDir, assetFilePath);
+              let count = 0;
+              while (relPath.startsWith('../')) {
+                relPath = relPath.substring(3);
+                count += 1;
+              }
+              const newUrl = `/__wds-outside-root__/${count}/${relPath}`;
+              return `<img src="${newUrl}"`;
+            });
+            return newBody;
+          }
+        },
       };
     };
 

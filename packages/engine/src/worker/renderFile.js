@@ -3,8 +3,12 @@ import { mdjsProcess } from '@mdjs/core';
 import { parentPort } from 'worker_threads';
 import { mkdir, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
-import { sourceRelativeFilePathToOutputRelativeFilePath } from '../urlPathConverter.js';
+import {
+  sourceRelativeFilePathToOutputRelativeFilePath,
+  sourceRelativeFilePathToUrl,
+} from '../urlPathConverter.js';
 import { convertMdFile } from '../converts.js';
+import { transformFile } from '../helpers/transformFile.js';
 
 async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
   let toImportFilePath = filePath;
@@ -14,7 +18,9 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
   const { default: content, ...data } = await import(toImportFilePath);
 
   const { sourceRelativeFilePath, layout } = data;
-  const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(sourceRelativeFilePath);
+  const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(
+    sourceRelativeFilePath,
+  );
   const outputFilePath = path.join(outputDir, outputRelativeFilePath);
 
   let contentForLayout = content;
@@ -29,8 +35,20 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
 
   let fileContent = contentForLayout;
   if (layout) {
-    fileContent = typeof layout.render === 'function' ? await layout.render(contentForLayout, data) : await layout(contentForLayout, data)
+    fileContent =
+      typeof layout.render === 'function'
+        ? await layout.render(contentForLayout, data)
+        : await layout(contentForLayout, data);
   }
+
+  fileContent = await transformFile(fileContent, {
+    setupPlugins: data.setupEnginePlugins,
+    sourceFilePath: filePath,
+    outputFilePath,
+    sourceRelativeFilePath,
+    outputRelativeFilePath,
+    url: sourceRelativeFilePathToUrl(sourceRelativeFilePath),
+  });
 
   if (writeFileToDisk) {
     if (!existsSync(path.dirname(outputFilePath))) {

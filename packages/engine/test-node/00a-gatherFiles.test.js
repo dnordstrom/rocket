@@ -35,4 +35,17 @@ describe('gatherFiles', () => {
       'about/02--second.rocket.js',
     ]);
   });
+
+  it('puts index.js first when using a not ordered sub directories', async () => {
+    const folderPath = new URL('./fixtures/00-gather-files/03-not-ordered-sub-dir/docs/', import.meta.url)
+      .pathname;
+    const files = await gatherFiles(folderPath);
+
+    expect(cleanup(files, folderPath)).to.deep.equal([
+      'index.rocket.js',
+      'about.rocket.js',
+      'components/index.rocket.js',
+      'components/tabs.rocket.js',
+    ]);
+  });
 });
