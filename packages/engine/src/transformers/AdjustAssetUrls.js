@@ -23,6 +23,45 @@ const parser = new SAXParser(SaxEventType.CloseTag, streamOptions);
 
 parser.prepareWasm(saxWasmBuffer);
 
+/**
+ * @param {object} options
+ * @param {string} options.url
+ * @param {string} options.sourceFilePath
+ * @param {string} options.sourceRelativeFilePath
+ * @param {string} options.outputFilePath
+ * @returns
+ */
+async function defaultAdjustAssetUrl({
+  url,
+  sourceFilePath,
+  sourceRelativeFilePath,
+  outputFilePath,
+}) {
+  if (isRocketPageFile(url)) {
+    const dir = isRocketIndexFile(url)
+      ? path.dirname(sourceRelativeFilePath)
+      : stripRocketSuffix(sourceRelativeFilePath);
+    return sourceRelativeFilePathToUrl(path.join(dir, url));
+  }
+  if (url.startsWith('./') || url.startsWith('../')) {
+    return path.relative(
+      path.dirname(outputFilePath),
+      path.join(path.dirname(sourceFilePath), url),
+    );
+  }
+  if (url.startsWith('resolve:')) {
+    const bareImport = url.substring(8);
+    const requireOfSource = createRequire(sourceFilePath);
+    const resolvedPath = requireOfSource.resolve(bareImport);
+    const rel = path.relative(
+      path.dirname(outputFilePath),
+      resolvedPath
+    );
+    return rel;
+  }
+  return url;
+}
+
 export class AdjustAssetUrls {
   constructor({
     assetElements = [
@@ -33,26 +72,22 @@ export class AdjustAssetUrls {
       { tagName: 'link', attribute: 'href' },
       { tagName: 'script', attribute: 'src' },
     ],
-    adjustAssetUrl = async ({ url, sourceFilePath, sourceRelativeFilePath, outputFilePath }) => {
-      if (isRocketPageFile(url)) {
-        const dir = isRocketIndexFile(url)
-          ? path.dirname(sourceRelativeFilePath)
-          : stripRocketSuffix(sourceRelativeFilePath);
-        return sourceRelativeFilePathToUrl(path.join(dir, url));
-      }
-      if (url.startsWith('./') || url.startsWith('../')) {
-        return path.relative(
-          path.dirname(outputFilePath),
-          path.join(path.dirname(sourceFilePath), url),
-        );
-      }
-      return url;
-    },
+    adjustAssetUrl = defaultAdjustAssetUrl,
   } = {}) {
     this.assetElements = assetElements;
     this.adjustAssetUrl = adjustAssetUrl;
   }
 
+  /**
+   * @param {string} source
+   * @param {object} options
+   * @param {string} options.url
+   * @param {string} options.sourceFilePath
+   * @param {string} options.sourceRelativeFilePath
+   * @param {string} options.outputFilePath
+   * @param {string} options.outputRelativeFilePath
+   * @returns {Promise<string>}
+   */
   async transform(
     source,
     { sourceFilePath, sourceRelativeFilePath, outputFilePath, outputRelativeFilePath },

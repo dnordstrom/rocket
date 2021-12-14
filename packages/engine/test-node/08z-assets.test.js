@@ -121,4 +121,46 @@ describe('Assets', () => {
 
     await cleanup();
   });
+
+  it('<img src="resolve:asset-example/test-img" />', async () => {
+    const { readOutput, engine, cleanup } = await setupTestEngine(
+      'fixtures/08-assets/06-node-resolve-local/docs',
+    );
+    await engine.start();
+
+    const index = await fetch('http://localhost:8000');
+    expect(readOutput('index.html')).to.equal(`<img src="../test.png" alt="test" />`);
+    expect(await index.text()).to.equal(
+      `<img src="/__wds-outside-root__/1/test.png" alt="test" />`,
+    );
+
+    const about = await fetch('http://localhost:8000/about/');
+    expect(readOutput('about/index.html')).to.equal(`<img src="../../test.png" alt="test" />`);
+    expect(await about.text()).to.equal(
+      `<img src="/__wds-outside-root__/1/test.png" alt="test" />`,
+    );
+
+    await cleanup();
+  });
+
+  it('<img src="resolve:some-dependency/assets/test.png" />', async () => {
+    const { readOutput, engine, cleanup } = await setupTestEngine(
+      'fixtures/08-assets/07-node-resolve-dependency/docs',
+    );
+    await engine.start();
+
+    const index = await fetch('http://localhost:8000');
+    expect(readOutput('index.html')).to.equal(`<img src="../node_modules/some-dependency/assets/test.png" alt="test" />`);
+    expect(await index.text()).to.equal(
+      `<img src="/__wds-outside-root__/1/node_modules/some-dependency/assets/test.png" alt="test" />`,
+    );
+
+    const about = await fetch('http://localhost:8000/about/');
+    expect(readOutput('about/index.html')).to.equal(`<img src="../../node_modules/some-dependency/assets/test.png" alt="test" />`);
+    expect(await about.text()).to.equal(
+      `<img src="/__wds-outside-root__/1/node_modules/some-dependency/assets/test.png" alt="test" />`,
+    );
+
+    await cleanup();
+  });
 });
