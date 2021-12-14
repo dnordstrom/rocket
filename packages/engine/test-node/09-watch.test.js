@@ -341,6 +341,7 @@ describe('Engine start', () => {
     await cleanup();
   });
 
+  // TODO: test works standalone but not when running all tests - probably due to some cleanup issues of wasm in a worker
   it.skip('continues after error in page rendering', async () => {
     const {
       readOutput,

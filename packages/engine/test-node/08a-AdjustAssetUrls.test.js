@@ -46,7 +46,7 @@ describe('AdjustAssetUrls', () => {
     expect(await adjust.transform('<a href="#foo">go</a>', options)).to.equal(
       '<a href="#foo">go</a>',
     );
-  });  
+  });
 
   it('adjust <a href="./about.rocket.js"></a>', async () => {
     const adjust = new AdjustAssetUrls();
@@ -66,5 +66,12 @@ describe('AdjustAssetUrls', () => {
         outputFilePath: '/my/path/to/__output/components/index.html',
       }),
     ).to.equal('<a href="/components/about/">go</a>');
+
+    expect(
+      await adjust.transform('<a href="./index.rocket.js">go</a>', {
+        sourceRelativeFilePath: 'about.rocket.js',
+        outputFilePath: '/my/path/to/__output/about/index.html',
+      }),
+    ).to.equal('<a href="/">go</a>');
   });
 });

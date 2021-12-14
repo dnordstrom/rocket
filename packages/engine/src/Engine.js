@@ -19,6 +19,7 @@ import {
   sourceRelativeFilePathToOutputRelativeFilePath,
   urlToSourceFilePath,
 } from './urlPathConverter.js';
+import { AdjustAssetUrls } from './index.js';
 
 export class Engine {
   /** @type {EngineOptions} */
@@ -141,20 +142,39 @@ export class Engine {
             }
           }
         },
+      };
+    };
+
+    const devServerAdjustAssetUrls = () => {
+      const adjustAssetUrl = new AdjustAssetUrls({
+        adjustAssetUrl: async ({ url, sourceFilePath, sourceRelativeFilePath, outputFilePath }) => {
+          if (url.startsWith('./') || url.startsWith('../')) {
+            const assetFilePath = path.join(path.dirname(outputFilePath), url);
+            let relPath = path.relative(this.outputDir, assetFilePath);
+            let count = 0;
+            while (relPath.startsWith('../')) {
+              relPath = relPath.substring(3);
+              count += 1;
+            }
+            return `/__wds-outside-root__/${count}/${relPath}`;
+          }
+          return url;
+        },
+      });
+
+      return {
+        name: 'dev-server-adjust-asset-urls',
         transform: async context => {
           const sourceFilePath = await this.getSourceFilePathFromUrl(context.path);
           if (sourceFilePath) {
             const outputFilePath = this.getOutputFilePath(sourceFilePath);
-            const newBody = context.body.replace(/<img src="(.*?)"/g, (match, url) => {
-              const assetFilePath = path.join(path.dirname(outputFilePath), url);
-              let relPath = path.relative(this.outputDir, assetFilePath);
-              let count = 0;
-              while (relPath.startsWith('../')) {
-                relPath = relPath.substring(3);
-                count += 1;
-              }
-              const newUrl = `/__wds-outside-root__/${count}/${relPath}`;
-              return `<img src="${newUrl}"`;
+            const sourceRelativeFilePath = path.relative(this.docsDir, sourceFilePath);
+            const outputRelativeFilePath = path.relative(this.outputDir, outputFilePath);
+            const newBody = await adjustAssetUrl.transform(context.body, {
+              sourceFilePath,
+              sourceRelativeFilePath,
+              outputFilePath,
+              outputRelativeFilePath,
             });
             return newBody;
           }
@@ -166,7 +186,7 @@ export class Engine {
       config: {
         open: false,
         rootDir: this.outputDir,
-        plugins: [registerTabPlugin()],
+        plugins: [registerTabPlugin(), devServerAdjustAssetUrls()],
       },
       logStartMessage: false,
       readCliArgs: false,

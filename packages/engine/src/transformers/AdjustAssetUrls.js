@@ -35,7 +35,9 @@ export class AdjustAssetUrls {
     ],
     adjustAssetUrl = async ({ url, sourceFilePath, sourceRelativeFilePath, outputFilePath }) => {
       if (isRocketPageFile(url)) {
-        const dir = stripRocketSuffix(sourceRelativeFilePath);
+        const dir = isRocketIndexFile(url)
+          ? path.dirname(sourceRelativeFilePath)
+          : stripRocketSuffix(sourceRelativeFilePath);
         return sourceRelativeFilePathToUrl(path.join(dir, url));
       }
       if (url.startsWith('./') || url.startsWith('../')) {
