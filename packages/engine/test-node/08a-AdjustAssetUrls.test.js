@@ -48,6 +48,19 @@ describe('AdjustAssetUrls', () => {
     );
   });
 
+  it('ignores absolute urls <a href="http://"></a>', async () => {
+    const adjust = new AdjustAssetUrls();
+    expect(await adjust.transform('<a href="http://google.com">go</a>', options)).to.equal(
+      '<a href="http://google.com">go</a>',
+    );
+    expect(await adjust.transform('<a href="http://github.com/index.rocket.js">go</a>', options)).to.equal(
+      '<a href="http://github.com/index.rocket.js">go</a>',
+    );
+    expect(await adjust.transform('<a href="//github.com/index.rocket.js">go</a>', options)).to.equal(
+      '<a href="//github.com/index.rocket.js">go</a>',
+    );
+  });
+
   it('adjust <a href="./about.rocket.js"></a>', async () => {
     const adjust = new AdjustAssetUrls();
     expect(await adjust.transform('<a href="./about.rocket.js">go</a>', options)).to.equal(

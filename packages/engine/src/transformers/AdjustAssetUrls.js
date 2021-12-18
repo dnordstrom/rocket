@@ -37,6 +37,9 @@ async function defaultAdjustAssetUrl({
   sourceRelativeFilePath,
   outputFilePath,
 }) {
+  if (url.startsWith('http') || url.startsWith('//')) {
+    return url;
+  }
   if (isRocketPageFile(url)) {
     const dir = isRocketIndexFile(url)
       ? path.dirname(sourceRelativeFilePath)
