@@ -17,6 +17,7 @@ import { Watcher } from './Watcher.js';
 import { PageTree } from './PageTree.js';
 import {
   sourceRelativeFilePathToOutputRelativeFilePath,
+  sourceRelativeFilePathToUrl,
   urlToSourceFilePath,
 } from './urlPathConverter.js';
 import { AdjustAssetUrls } from './index.js';
@@ -176,6 +177,7 @@ export class Engine {
               sourceRelativeFilePath,
               outputFilePath,
               outputRelativeFilePath,
+              url: sourceRelativeFilePathToUrl(sourceRelativeFilePath),
             });
             return newBody;
           }
