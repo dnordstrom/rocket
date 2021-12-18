@@ -176,7 +176,7 @@ describe('Engine start', () => {
     await cleanup();
   });
 
-  it('rerenders on a js dependency change', async () => {
+  it('04: rerenders on a js dependency change', async () => {
     const {
       build,
       readOutput,
@@ -200,7 +200,7 @@ describe('Engine start', () => {
     await cleanup();
   });
 
-  it('rerenders on a js dependency change [in md]', async () => {
+  it('04b: rerenders on a js dependency change [in md]', async () => {
     const {
       build,
       readOutput,
@@ -220,6 +220,37 @@ describe('Engine start', () => {
     await writeSource('name.js', "export const name = '🚀';");
     await anEngineEvent('rocketUpdated');
     expect(readOutput('index.html')).to.equal('<p>name: "🚀"</p>');
+
+    await cleanup();
+  });
+
+  it('04c: rerenders on npm dependency update', async () => {
+    const {
+      readOutput,
+      writeSource,
+      anEngineEvent,
+      cleanup,
+      engine,
+      setAsOpenedInBrowser,
+    } = await setupTestEngine('fixtures/09-watch/04c-npm-dependency-update/docs');
+
+    await writeSource(
+      '../node_modules/some-dependency/index.js',
+      "export const someDependency = 'initialSomeDependency';",
+    );
+
+    await engine.start();
+    await fetch('http://localhost:8000/');
+    expect(readOutput('index.html')).to.equal('<p>initialSomeDependency</p>');
+
+    setAsOpenedInBrowser('index.rocket.js');
+    await writeSource(
+      '../node_modules/some-dependency/index.js',
+      "export const someDependency = 'updatedSomeDependency';",
+    );
+
+    await anEngineEvent('rocketUpdated');
+    expect(readOutput('index.html')).to.equal('<p>updatedSomeDependency</p>');
 
     await cleanup();
   });

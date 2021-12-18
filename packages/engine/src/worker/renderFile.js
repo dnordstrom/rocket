@@ -33,12 +33,21 @@ async function renderFile({ writeFileToDisk = true, filePath, outputDir }) {
     contentForLayout = mdjs.html;
   }
 
+
   let fileContent = contentForLayout;
   if (layout) {
+    const layoutData = {
+      sourceFilePath: filePath,
+      outputFilePath,
+      sourceRelativeFilePath,
+      outputRelativeFilePath,
+      url: sourceRelativeFilePathToUrl(sourceRelativeFilePath),
+      ...data,
+    }
     fileContent =
       typeof layout.render === 'function'
-        ? await layout.render(contentForLayout, data)
-        : await layout(contentForLayout, data);
+        ? await layout.render(contentForLayout, layoutData)
+        : await layout(contentForLayout, layoutData);
   }
 
   fileContent = await transformFile(fileContent, {

@@ -139,32 +139,39 @@ export class PageTree {
    * @param {string} sourceRelativeFilePath
    */
   setCurrent(sourceRelativeFilePath) {
-    const currentNode = this.tree.first(
-      entry => entry.model.sourceRelativeFilePath === sourceRelativeFilePath,
-    );
-    if (currentNode) {
-      currentNode.model.current = true;
-      for (const parent of currentNode.getPath()) {
-        parent.model.active = true;
+    if (this.tree) {
+      const currentNode = this.tree.first(
+        entry => entry.model.sourceRelativeFilePath === sourceRelativeFilePath,
+      );
+      if (currentNode) {
+        currentNode.model.current = true;
+        for (const parent of currentNode.getPath()) {
+          parent.model.active = true;
+        }
       }
     }
   }
 
   removeCurrent() {
-    const currentNode = this.tree.first(entry => entry.model.current === true);
-    if (currentNode) {
-      currentNode.model.current = false;
-      for (const parent of currentNode.getPath()) {
-        parent.model.active = false;
+    if (this.tree) {
+      const currentNode = this.tree.first(entry => entry.model.current === true);
+      if (currentNode) {
+        currentNode.model.current = false;
+        for (const parent of currentNode.getPath()) {
+          parent.model.active = false;
+        }
       }
     }
   }
 
   async renderMenu(inst, sourceRelativeFilePath) {
-    this.setCurrent(sourceRelativeFilePath);
-    inst.currentNode = this.tree.first(entry => entry.model.current === true);
-    const output = await inst.render(this.tree);
-    this.removeCurrent();
-    return output;
+    if (this.tree) {
+      this.setCurrent(sourceRelativeFilePath);
+      inst.currentNode = this.tree.first(entry => entry.model.current === true);
+      const output = await inst.render(this.tree);
+      this.removeCurrent();
+      return output;
+    }
+    return '';
   }
 }

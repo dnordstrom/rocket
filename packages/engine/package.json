@@ -35,7 +35,7 @@
     "src"
   ],
   "dependencies": {
-    "@custom-elements-manifest/find-dependencies": "0.0.4",
+    "@d4kmor/tree-model": "^0.1.1",
     "@web/dev-server": "^0.1.4",
     "@parcel/watcher": "^2.0.2",
     "es-module-lexer": "^0.9.3",

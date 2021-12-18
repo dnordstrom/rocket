@@ -60,11 +60,12 @@ export class Engine {
 
     this.options = applyPlugins(this.options, defaultPlugins);
 
-    const { docsDir: userDocsDir, outputDir: userOutputDir } = this.options;
+    const { docsDir: userDocsDir, outputDir: userOutputDir, watchDir: userWatchDir } = this.options;
     this.docsDir = userDocsDir ? path.resolve(userDocsDir) : path.join(process.cwd(), 'docs');
     this.outputDir = userOutputDir
       ? path.resolve(userOutputDir)
       : path.join(this.docsDir, '..', '_site');
+    this.watchDir = userWatchDir ? path.resolve(userWatchDir) : process.cwd();
   }
 
   async build() {
@@ -112,7 +113,7 @@ export class Engine {
     const pageTree = new PageTree(this.docsDir);
     await pageTree.restore();
     this.watcher = new Watcher();
-    await this.watcher.init(this.docsDir);
+    await this.watcher.init(this.watchDir, { ignoreFolders: [this.outputDir] });
     await this.watcher.addPages(files);
 
     const registerTabPlugin = () => {

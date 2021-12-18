@@ -1,10 +1,6 @@
 import watcher from '@parcel/watcher';
-import { init, parse } from 'es-module-lexer';
-import { readFile } from 'fs/promises';
-import path from 'path';
 import { convertMdFile } from './converts.js';
-
-await init;
+import { findJsDependencies } from './helpers/findJsDependencies.js';
 
 async function getJsDependencies(sourceFilePath) {
   let toImportFilePath = sourceFilePath;
@@ -12,12 +8,7 @@ async function getJsDependencies(sourceFilePath) {
     toImportFilePath = await convertMdFile(sourceFilePath);
   }
 
-  const sourceBuffer = await readFile(toImportFilePath, 'utf8');
-  const [imports] = parse(sourceBuffer.toString());
-
-  const jsDependencies = imports.map(importObj => {
-    return path.join(path.dirname(toImportFilePath), importObj.n);
-  });
+  const jsDependencies = await findJsDependencies([toImportFilePath]);
   return jsDependencies;
 }
 
@@ -29,6 +20,15 @@ function isRocketPageFile(filePath) {
   );
 }
 
+function shouldHandle(filePath, ignoreFolders) {
+  for (const ignoreFolder of ignoreFolders) {
+    if (filePath.startsWith(ignoreFolder)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export class Watcher {
   pages = new Map();
 
@@ -36,32 +36,36 @@ export class Watcher {
 
   _taskQueue = new Map();
 
-  async init(initDir) {
+  async init(initDir, { ignoreFolders = [] }) {
     this.subscription = await watcher.subscribe(initDir, async (err, events) => {
       if (this.acceptPageUpdates) {
         for (const event of events) {
-          if (event.type === 'create') {
-            await this.addCreateTask(event.path);
-          }
-          if (event.type === 'update') {
-            await this.addUpdateTask(event.path);
-          }
-          if (event.type === 'delete') {
-            await this.addDeleteTask(event.path);
+          if (shouldHandle(event.path, ignoreFolders)) {
+            if (event.type === 'create') {
+              await this.addCreateTask(event.path);
+            }
+            if (event.type === 'update') {
+              await this.addUpdateTask(event.path);
+            }
+            if (event.type === 'delete') {
+              await this.addDeleteTask(event.path);
+            }
           }
         }
         await this.executeTaskQueue();
       } else {
         for (const event of events) {
-          if (
-            this._taskQueue.has(event.path) ||
-            event.path.endsWith('pageTreeData.rocketGenerated.json')
-          ) {
-            // file is either in queue or is the pageTreeData.rocketGenerated.json file
-          } else {
-            console.log(
-              `You saved ${event.path} while Rocket was busy building. Automatic rebuilding is not yet implemented please save again.`,
-            );
+          if (shouldHandle(event.path, ignoreFolders)) {
+            if (
+              this._taskQueue.has(event.path) ||
+              event.path.endsWith('pageTreeData.rocketGenerated.json')
+            ) {
+              // file is either in queue or is the pageTreeData.rocketGenerated.json file
+            } else {
+              console.log(
+                `You saved ${event.path} while Rocket was busy building. Automatic rebuilding is not yet implemented please save again.`,
+              );
+            }
           }
         }
       }

@@ -37,6 +37,7 @@ export async function setupTestEngine(docsDir, options = {}) {
     useOptions.docsDir = path.join(__dirname, docsDir.split('/').join(path.sep));
   }
   useOptions.outputDir = path.join(useOptions.docsDir, '..', '__output');
+  useOptions.watchDir = path.join(useOptions.docsDir, '..');
 
   const engine = new Engine();
   engine.setOptions(useOptions);
