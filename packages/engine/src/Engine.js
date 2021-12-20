@@ -2,6 +2,8 @@
 
 /** @typedef {import('../types/main').EngineOptions} EngineOptions */
 import { existsSync } from 'fs';
+// TODO: implement copy without extra dependency
+import fse from 'fs-extra';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
 import { EventEmitter } from 'events';
@@ -46,20 +48,13 @@ export class Engine {
     if (!newOptions) {
       return;
     }
-    const setupPlugins = newOptions.setupPlugins
-      ? [...this.options.setupPlugins, ...newOptions.setupPlugins]
-      : this.options.setupPlugins;
 
+    const setupPlugins = [...(newOptions.setupPlugins || []), ...(this.options.setupPlugins || [])];
     this.options = {
       ...this.options,
       ...newOptions,
       setupPlugins,
     };
-
-    const defaultPlugins = this.options.defaultPlugins ? [...this.options.defaultPlugins] : [];
-    delete this.options.defaultPlugins;
-
-    this.options = applyPlugins(this.options, defaultPlugins);
 
     const { docsDir: userDocsDir, outputDir: userOutputDir, watchDir: userWatchDir } = this.options;
     this.docsDir = userDocsDir ? path.resolve(userDocsDir) : path.join(process.cwd(), 'docs');
@@ -70,7 +65,7 @@ export class Engine {
   }
 
   async build() {
-    await this.prepareOutputDir();
+    await this.prepare();
     const pageTree = new PageTree(this.docsDir);
 
     // write files
@@ -99,16 +94,34 @@ export class Engine {
     await rm(this.outputDir, { recursive: true, force: true });
   }
 
-  async prepareOutputDir() {
+  async prepare() {
+    const defaultPlugins = this.options.defaultPlugins ? [...this.options.defaultPlugins] : [];
+    this.options = applyPlugins(this.options, defaultPlugins);
+
+    // prepare outputDir
     if (!existsSync(this.outputDir)) {
       await mkdir(this.outputDir, { recursive: true });
     } else {
       await this.clearOutputDir();
     }
+
+    // copy public files
+    const publicDir = path.join(this.docsDir, '__public');
+    if (existsSync(publicDir)) {
+      await fse.copy(publicDir, this.outputDir);
+    }
+
+    // copy public files of plugins
+    for (const plugin of this.options.plugins) {
+      const publicFolder = plugin.constructor.publicFolder;
+      if (publicFolder && existsSync(publicFolder)) {
+        await fse.copy(publicFolder, this.outputDir);
+      }
+    }
   }
 
   async start() {
-    await this.prepareOutputDir();
+    await this.prepare();
     const files = await gatherFiles(this.docsDir);
 
     const pageTree = new PageTree(this.docsDir);

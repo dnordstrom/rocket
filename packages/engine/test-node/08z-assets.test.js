@@ -150,17 +150,31 @@ describe('Assets', () => {
     await engine.start();
 
     const index = await fetch('http://localhost:8000');
-    expect(readOutput('index.html')).to.equal(`<img src="../node_modules/some-dependency/assets/test.png" alt="test" />`);
+    expect(readOutput('index.html')).to.equal(
+      `<img src="../node_modules/some-dependency/assets/test.png" alt="test" />`,
+    );
     expect(await index.text()).to.equal(
       `<img src="/__wds-outside-root__/1/node_modules/some-dependency/assets/test.png" alt="test" />`,
     );
 
     const about = await fetch('http://localhost:8000/about/');
-    expect(readOutput('about/index.html')).to.equal(`<img src="../../node_modules/some-dependency/assets/test.png" alt="test" />`);
+    expect(readOutput('about/index.html')).to.equal(
+      `<img src="../../node_modules/some-dependency/assets/test.png" alt="test" />`,
+    );
     expect(await about.text()).to.equal(
       `<img src="/__wds-outside-root__/1/node_modules/some-dependency/assets/test.png" alt="test" />`,
     );
 
     await cleanup();
+  });
+
+  it('copies files from the __public folder', async () => {
+    const { build, outputExists } = await setupTestEngine(
+      'fixtures/08-assets/08-copies-public-files/docs',
+    );
+    await build();
+
+    expect(outputExists('added-via-input-folder.txt')).to.be.true;
+    expect(outputExists('some-folder/add-nested-via-input-folder.txt')).to.be.true;
   });
 });
