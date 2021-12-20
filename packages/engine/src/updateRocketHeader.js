@@ -3,6 +3,7 @@ import fs from 'fs';
 import { writeFile, readFile } from 'fs/promises';
 
 import { init, parse } from 'es-module-lexer';
+import { getServerCodeFromMd } from './helpers/getServerCodeFromMd.js';
 
 await init;
 
@@ -91,7 +92,11 @@ async function generateRocketHeader(content, { filePath, docsDir }) {
     }
   }
 
-  const contentWithoutRocketHeader = setRocketHeader(content, '', filePath);
+  let contentWithoutRocketHeader = setRocketHeader(content, '', filePath);
+  if (filePath.endsWith('.md')) {
+    contentWithoutRocketHeader = getServerCodeFromMd(contentWithoutRocketHeader);
+  }
+
   const [imports, thisExports] = parse(contentWithoutRocketHeader);
 
   for (const thisExport of thisExports) {

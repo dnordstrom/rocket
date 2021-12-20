@@ -256,4 +256,29 @@ describe('Engine Data Cascade', () => {
       ].join('\n'),
     );
   });
+
+  it('injects a header into the markdown source file', async () => {
+    const { build, readSource, writeSource, readOutput } = await setupTestEngine(
+      'fixtures/01-data-cascade/07-markdown/docs',
+    );
+    await writeSource(
+      'index.rocket.md',
+      '# Slack\n\nYou can also find us on the Polymer Slack in the [#open-wc](https://polymer.slack.com/archives/CE6D9DN05) channel.',
+    );
+    await build();
+
+    expect(readSource('index.rocket.md')).to.equal(
+      [
+        '```js server',
+        '/* START - Rocket auto generated - do not touch */',
+        "export const sourceRelativeFilePath = 'index.rocket.md';",
+        '/* END - Rocket auto generated - do not touch */',
+        '```',
+        '',
+        '# Slack',
+        '',
+        'You can also find us on the Polymer Slack in the [#open-wc](https://polymer.slack.com/archives/CE6D9DN05) channel.',
+      ].join('\n'),
+    );
+  });
 });
