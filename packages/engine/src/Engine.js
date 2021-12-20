@@ -116,6 +116,8 @@ export class Engine {
       const publicFolder = plugin.constructor.publicFolder;
       if (publicFolder && existsSync(publicFolder)) {
         await fse.copy(publicFolder, this.outputDir);
+      } else {
+        console.log(`Plugin ${plugin.constructor.name} defined a public folder ${publicFolder} but it does not exist.`);
       }
     }
   }
