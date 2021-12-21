@@ -13,7 +13,7 @@
       "level": 1
     },
     {
-      "menuLinkText": "index.rocket.js",
+      "menuLinkText": "sub-dir/index.rocket.js",
       "url": "/sub-dir/",
       "outputRelativeFilePath": "sub-dir/index.html",
       "sourceRelativeFilePath": "sub-dir/index.rocket.js",

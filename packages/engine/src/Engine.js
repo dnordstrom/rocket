@@ -66,7 +66,7 @@ export class Engine {
 
   async build() {
     await this.prepare();
-    const pageTree = new PageTree(this.docsDir);
+    const pageTree = new PageTree({ inputDir: this.docsDir, outputDir: this.outputDir });
 
     // write files
     const sourceFiles = await gatherFiles(this.docsDir);
@@ -126,7 +126,7 @@ export class Engine {
     await this.prepare();
     const files = await gatherFiles(this.docsDir);
 
-    const pageTree = new PageTree(this.docsDir);
+    const pageTree = new PageTree({ inputDir: this.docsDir, outputDir: this.outputDir });
     await pageTree.restore();
     this.watcher = new Watcher();
     await this.watcher.init(this.watchDir, { ignoreFolders: [this.outputDir] });

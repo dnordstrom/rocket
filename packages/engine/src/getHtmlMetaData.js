@@ -1,7 +1,4 @@
 import fs from 'fs';
-import path from 'path';
-import saxWasm from 'sax-wasm';
-import { createRequire } from 'module';
 import { getAttribute, getText } from './helpers/sax-helpers.js';
 
 /** @typedef {import('sax-wasm').Text} Text */
@@ -9,16 +6,7 @@ import { getAttribute, getText } from './helpers/sax-helpers.js';
 /** @typedef {import('sax-wasm').Position} Position */
 /** @typedef {import('../types/main').ParseMetaData} ParseMetaData */
 
-const require = createRequire(import.meta.url);
-const { SaxEventType, SAXParser } = saxWasm;
-
-const streamOptions = { highWaterMark: 256 * 1024 };
-
-const saxPath = require.resolve('sax-wasm/lib/sax-wasm.wasm');
-const saxWasmBuffer = fs.readFileSync(saxPath);
-const parser = new SAXParser(SaxEventType.CloseTag | SaxEventType.Comment, streamOptions);
-
-await parser.prepareWasm(saxWasmBuffer);
+import { parser, SaxEventType, streamOptions } from './helpers/sax-parser.js';
 
 /**
  * @param {Tag} data
@@ -36,8 +24,6 @@ function isHeadline(data) {
  * @returns
  */
 export function getHtmlMetaData(htmlFilePath) {
-  const fileName = path.basename(htmlFilePath);
-
   /** @type {ParseMetaData} */
   const metaData = {
     // headlinesWithId: [],
@@ -108,7 +94,6 @@ export function getHtmlMetaData(htmlFilePath) {
     });
     readable.on('end', () => {
       parser.end();
-      metaData.menuLinkText = metaData.menuLinkText || metaData.h1 || metaData.title || fileName;
 
       resolve(metaData);
     });

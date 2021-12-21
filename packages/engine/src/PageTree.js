@@ -1,7 +1,10 @@
 import path from 'path';
 import { TreeModel } from '@d4kmor/tree-model';
 import { getHtmlMetaData } from './getHtmlMetaData.js';
-import { sourceRelativeFilePathToOutputRelativeFilePath, sourceRelativeFilePathToUrl } from './urlPathConverter.js';
+import {
+  sourceRelativeFilePathToOutputRelativeFilePath,
+  sourceRelativeFilePathToUrl,
+} from './urlPathConverter.js';
 import { readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 
@@ -21,8 +24,9 @@ export class PageTree {
   /**
    * @param {string | URL} docsDir
    */
-  constructor(docsDir) {
-    this.docsDir = docsDir instanceof URL ? docsDir.pathname : docsDir;
+  constructor({ inputDir, outputDir }) {
+    this.docsDir = inputDir instanceof URL ? inputDir.pathname : inputDir;
+    this.outputDir = outputDir instanceof URL ? outputDir.pathname : outputDir;
     this.dataFilePath = path.join(this.docsDir, 'pageTreeData.rocketGenerated.json');
     this.treeModel = new TreeModel();
     this.needsAnotherRenderingPass = false;
@@ -33,16 +37,20 @@ export class PageTree {
    * @param {string} sourceRelativeFilePath
    */
   async add(sourceRelativeFilePath) {
-    const outputFilePath = path.join(this.docsDir, sourceRelativeFilePath);
-    const htmlMetaData = await getHtmlMetaData(outputFilePath);
-    const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(sourceRelativeFilePath);
+    const outputRelativeFilePath = sourceRelativeFilePathToOutputRelativeFilePath(
+      sourceRelativeFilePath,
+    );
 
     if (!outputRelativeFilePath.endsWith('index.html')) {
       return;
     }
 
+    const outputFilePath = path.join(this.outputDir, outputRelativeFilePath);
+    const htmlMetaData = await getHtmlMetaData(outputFilePath);
+
     const pageData = {
       ...htmlMetaData,
+      menuLinkText: htmlMetaData.menuLinkText || htmlMetaData.h1 || htmlMetaData.title || sourceRelativeFilePath,
       url: sourceRelativeFilePathToUrl(sourceRelativeFilePath),
       outputRelativeFilePath,
       sourceRelativeFilePath: sourceRelativeFilePath,
@@ -57,7 +65,7 @@ export class PageTree {
         const existingModel = { ...self.model };
         delete existingModel.children;
         delete existingModel.headlinesWithId;
-        const newModel = { ...pageModel.model }
+        const newModel = { ...pageModel.model };
         delete newModel.children;
         delete newModel.headlinesWithId;
         if (JSON.stringify(existingModel) !== JSON.stringify(newModel)) {

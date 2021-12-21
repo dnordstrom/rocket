@@ -6,28 +6,28 @@
   "level": 0,
   "children": [
     {
-      "menuLinkText": "index.rocket.js",
+      "menuLinkText": "01--discover/index.rocket.js",
       "url": "/discover/",
       "outputRelativeFilePath": "discover/index.html",
       "sourceRelativeFilePath": "01--discover/index.rocket.js",
       "level": 1
     },
     {
-      "menuLinkText": "index.rocket.js",
+      "menuLinkText": "02--components/index.rocket.js",
       "url": "/components/",
       "outputRelativeFilePath": "components/index.html",
       "sourceRelativeFilePath": "02--components/index.rocket.js",
       "level": 1,
       "children": [
         {
-          "menuLinkText": "01--tabs.rocket.js",
+          "menuLinkText": "02--components/01--tabs.rocket.js",
           "url": "/components/tabs/",
           "outputRelativeFilePath": "components/tabs/index.html",
           "sourceRelativeFilePath": "02--components/01--tabs.rocket.js",
           "level": 2
         },
         {
-          "menuLinkText": "02--accordion.rocket.js",
+          "menuLinkText": "02--components/02--accordion.rocket.js",
           "url": "/components/accordion/",
           "outputRelativeFilePath": "components/accordion/index.html",
           "sourceRelativeFilePath": "02--components/02--accordion.rocket.js",

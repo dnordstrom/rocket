@@ -154,4 +154,30 @@ describe('Engine menus', () => {
       ].join('\n'),
     );
   });
+
+  it('extracts correct data from markdown', async () => {
+    const { readSource, build } = await setupTestEngine('fixtures/05-menu/04-markdown/docs');
+    await build();
+
+    expect(readSource('pageTreeData.rocketGenerated.json', { format: 'json' })).to.equal(
+      [
+        '{',
+        '  "h1": "Home",',
+        '  "headlinesWithId": [',
+        '    {',
+        '      "text": "Home",',
+        '      "id": "home",',
+        '      "level": 1',
+        '    }',
+        '  ],',
+        '  "menuLinkText": "Home",',
+        '  "url": "/",',
+        '  "outputRelativeFilePath": "index.html",',
+        '  "sourceRelativeFilePath": "index.rocket.md",',
+        '  "level": 0',
+        '}',
+        '',
+      ].join('\n'),
+    );
+  });
 });

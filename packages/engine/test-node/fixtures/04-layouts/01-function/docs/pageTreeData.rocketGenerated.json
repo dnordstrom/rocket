@@ -1,4 +1,5 @@
 {
+  "title": "[[ web-menu-title ]] | Rocket",
   "h1": "\n    Welcome Members:\n  ",
   "headlinesWithId": [
     {
@@ -14,7 +15,16 @@
   "level": 0,
   "children": [
     {
-      "menuLinkText": "markdown.rocket.md",
+      "title": "[[ web-menu-title ]] | Rocket",
+      "h1": "Welcome Members:",
+      "headlinesWithId": [
+        {
+          "text": "Welcome Members:",
+          "id": "welcome-members",
+          "level": 1
+        }
+      ],
+      "menuLinkText": "Welcome Members:",
       "url": "/markdown/",
       "outputRelativeFilePath": "markdown/index.html",
       "sourceRelativeFilePath": "markdown.rocket.md",

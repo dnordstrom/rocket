@@ -1,7 +1,5 @@
 import path from 'path';
-import saxWasm from 'sax-wasm';
 import { createRequire } from 'module';
-import { readFile } from 'fs/promises';
 import { getAttributeMeta, replaceBetween } from '../helpers/sax-helpers.js';
 import { isRocketPageFile } from '../helpers/isRocketPageFile.js';
 import { sourceRelativeFilePathToUrl } from '../urlPathConverter.js';
@@ -12,16 +10,7 @@ import { stripRocketSuffix } from '../helpers/stripRocketSuffix.js';
 /** @typedef {import('sax-wasm').Tag} Tag */
 /** @typedef {import('sax-wasm').Position} Position */
 
-const { SaxEventType, SAXParser } = saxWasm;
-
-const require = createRequire(import.meta.url);
-
-const streamOptions = { highWaterMark: 256 * 1024 };
-const saxPath = require.resolve('sax-wasm/lib/sax-wasm.wasm');
-const saxWasmBuffer = await readFile(saxPath);
-const parser = new SAXParser(SaxEventType.CloseTag, streamOptions);
-
-parser.prepareWasm(saxWasmBuffer);
+import { parser, SaxEventType, streamOptions } from '../helpers/sax-parser.js';
 
 /**
  * @param {object} options
