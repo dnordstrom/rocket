@@ -17,6 +17,7 @@ export function renderViaWorker({ filePath, outputDir, writeFileToDisk }) {
   history.add(filePath);
 
   return new Promise((resolve, reject) => {
+    // console.log(`Rendering ${filePath} via worker`);
     if (isRendering !== '') {
       reject(new Error(`Trying to start rendering ${filePath} while ${isRendering} is rendering`));
     }

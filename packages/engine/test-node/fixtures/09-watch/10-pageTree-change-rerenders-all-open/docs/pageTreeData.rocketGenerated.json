@@ -6,12 +6,13 @@
   "level": 0,
   "children": [
     {
-      "h1": "about",
-      "menuLinkText": "about",
+      "h1": "new about",
+      "menuLinkText": "new about",
       "url": "/about/",
       "outputRelativeFilePath": "about/index.html",
       "sourceRelativeFilePath": "about.rocket.js",
-      "level": 1
+      "level": 1,
+      "title": "Document"
     },
     {
       "h1": "components",

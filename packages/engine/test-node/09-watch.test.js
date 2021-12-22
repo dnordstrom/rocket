@@ -401,6 +401,7 @@ describe('Engine start', () => {
     const {
       readOutput,
       writeSource,
+      outputExists,
       readSource,
       cleanup,
       engine,
@@ -409,31 +410,10 @@ describe('Engine start', () => {
       setAsOpenedInBrowser,
     } = await setupTestEngine('fixtures/09-watch/09-update-pageTree-on-create/docs');
     await deleteSource('about.rocket.js');
-    await writeSource(
-      'pageTreeData.rocketGenerated.json',
-      [
-        '{',
-        '  "title": "Document",',
-        '  "url": "/",',
-        '  "outputRelativeFilePath": "index.html",',
-        '  "sourceRelativeFilePath": "index.rocket.js",',
-        '  "level": 0,',
-        '  "children": [',
-        '    {',
-        '      "title": "Document",',
-        '      "h1": "components",',
-        '      "menuLinkText": "components",',
-        '      "url": "/components/",',
-        '      "outputRelativeFilePath": "components/index.html",',
-        '      "sourceRelativeFilePath": "components.rocket.js",',
-        '      "level": 1',
-        '    }',
-        '  ]',
-        '}',
-      ].join('\n'),
-    );
+    // setup all pages with a full build
+    await engine.build();
 
-    await engine.start();
+    await engine.start({ clearOutputDir: false });
     setAsOpenedInBrowser('index.rocket.js');
     await writeSource(
       'about.rocket.js',
@@ -447,6 +427,8 @@ describe('Engine start', () => {
       [
         '{',
         '  "title": "Document",',
+        '  "h1": "index",',
+        '  "menuLinkText": "index",',
         '  "url": "/",',
         '  "outputRelativeFilePath": "index.html",',
         '  "sourceRelativeFilePath": "index.rocket.js",',
@@ -499,7 +481,7 @@ describe('Engine start', () => {
       ].join('\n'),
     );
 
-    // index gets rerendered with the updated PageTree which includes the about page
+    // index gets rerendered as it's set to opened in the browser with the updated PageTree which includes the about page
     expect(readOutput('index.html', { format: 'html' })).to.equal(
       [
         '<!DOCTYPE html>',
@@ -522,6 +504,9 @@ describe('Engine start', () => {
         '',
       ].join('\n'),
     );
+
+    // the components page is now outdated but will not be rerendered so delete it
+    expect(outputExists('components/index.html')).to.be.false;
 
     await cleanup();
   });
@@ -557,7 +542,7 @@ describe('Engine start', () => {
         '  </head>',
         '  <body>',
         '    <nav aria-label="site">',
-        '      <a href="/about/" aria-current="page">about</a>',
+        '      <a href="/about/" aria-current="page">new about</a>',
         '      <a href="/components/">components</a>',
         '      <a href="/getting-started/">getting-started</a>',
         '    </nav>',
@@ -581,7 +566,7 @@ describe('Engine start', () => {
         '  </head>',
         '  <body>',
         '    <nav aria-label="site">',
-        '      <a href="/about/">about</a>',
+        '      <a href="/about/">new about</a>',
         '      <a href="/components/">components</a>',
         '      <a href="/getting-started/">getting-started</a>',
         '    </nav>',

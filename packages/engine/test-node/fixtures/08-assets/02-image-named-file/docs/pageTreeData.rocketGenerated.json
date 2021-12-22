@@ -13,14 +13,14 @@
       "level": 1
     },
     {
-      "menuLinkText": "index.rocket.js",
+      "menuLinkText": "components/index.rocket.js",
       "url": "/components/",
       "outputRelativeFilePath": "components/index.html",
       "sourceRelativeFilePath": "components/index.rocket.js",
       "level": 1,
       "children": [
         {
-          "menuLinkText": "tabs.rocket.js",
+          "menuLinkText": "components/tabs.rocket.js",
           "url": "/components/tabs/",
           "outputRelativeFilePath": "components/tabs/index.html",
           "sourceRelativeFilePath": "components/tabs.rocket.js",

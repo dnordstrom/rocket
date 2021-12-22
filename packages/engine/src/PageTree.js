@@ -69,7 +69,11 @@ export class PageTree {
         delete newModel.children;
         delete newModel.headlinesWithId;
         if (JSON.stringify(existingModel) !== JSON.stringify(newModel)) {
-          self.model = { ...self.model, ...pageModel.model };
+          for (const key of Object.keys(pageModel.model)) {
+            if (self.model[key] !== pageModel.model[key]) {
+              self.model[key] = pageModel.model[key];
+            }
+          }
           this.needsAnotherRenderingPass = true;
         }
       } else {

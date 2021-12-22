@@ -8,7 +8,9 @@
       "url": "/about/",
       "outputRelativeFilePath": "about/index.html",
       "sourceRelativeFilePath": "about.rocket.js",
-      "level": 1
+      "level": 1,
+      "title": "Document",
+      "menuLinkText": "Document"
     }
   ]
 }

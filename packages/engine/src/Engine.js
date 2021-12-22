@@ -94,14 +94,14 @@ export class Engine {
     await rm(this.outputDir, { recursive: true, force: true });
   }
 
-  async prepare() {
+  async prepare({ clearOutputDir = true } = {}) {
     const defaultPlugins = this.options.defaultPlugins ? [...this.options.defaultPlugins] : [];
     this.options = applyPlugins(this.options, defaultPlugins);
 
     // prepare outputDir
     if (!existsSync(this.outputDir)) {
       await mkdir(this.outputDir, { recursive: true });
-    } else {
+    } else if (clearOutputDir) {
       await this.clearOutputDir();
     }
 
@@ -117,13 +117,15 @@ export class Engine {
       if (publicFolder && existsSync(publicFolder)) {
         await fse.copy(publicFolder, this.outputDir);
       } else {
-        console.log(`Plugin ${plugin.constructor.name} defined a public folder ${publicFolder} but it does not exist.`);
+        console.log(
+          `Plugin ${plugin.constructor.name} defined a public folder ${publicFolder} but it does not exist.`,
+        );
       }
     }
   }
 
-  async start() {
-    await this.prepare();
+  async start(options = {}) {
+    await this.prepare(options);
     const files = await gatherFiles(this.docsDir);
 
     const pageTree = new PageTree({ inputDir: this.docsDir, outputDir: this.outputDir });
@@ -153,7 +155,7 @@ export class Engine {
               await pageTree.save();
               if (pageTree.needsAnotherRenderingPass) {
                 await this.renderFile(sourceFilePath);
-                await this.renderAllOpenedFiles();
+                await this.renderAllOpenedFiles({ triggerSourceFilePath: sourceFilePath });
                 pageTree.needsAnotherRenderingPass = false;
               }
             }
@@ -238,7 +240,7 @@ export class Engine {
             await pageTree.save();
 
             if (pageTree.needsAnotherRenderingPass) {
-              await this.renderAllOpenedFiles();
+              await this.renderAllOpenedFiles({ triggerSourceFilePath: page.sourceFilePath });
               pageTree.needsAnotherRenderingPass = false;
             }
           } catch (error) {
@@ -322,12 +324,18 @@ export class Engine {
     await writeFile(outputFilePath, errorHtml);
   }
 
-  async renderAllOpenedFiles() {
+  async renderAllOpenedFiles({ deleteOtherFiles = true, triggerSourceFilePath = '' } = {}) {
     if (this.watcher) {
       for (const [sourceFilePath, page] of this.watcher.pages.entries()) {
+        if (triggerSourceFilePath && triggerSourceFilePath === sourceFilePath) {
+          // no need to rerender the file that triggered it
+          continue;
+        }
         const isOpenedInBrowser = !!page.webSockets?.size ?? false;
         if (isOpenedInBrowser) {
           await this.renderFile(sourceFilePath);
+        } else if (deleteOtherFiles === true) {
+          await this.deleteOutputOf(sourceFilePath);
         }
       }
     }

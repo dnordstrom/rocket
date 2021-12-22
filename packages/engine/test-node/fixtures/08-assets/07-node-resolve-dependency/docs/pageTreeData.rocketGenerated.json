@@ -6,7 +6,7 @@
   "level": 0,
   "children": [
     {
-      "menuLinkText": "index.rocket.js",
+      "menuLinkText": "about/index.rocket.js",
       "url": "/about/",
       "outputRelativeFilePath": "about/index.html",
       "sourceRelativeFilePath": "about/index.rocket.js",
