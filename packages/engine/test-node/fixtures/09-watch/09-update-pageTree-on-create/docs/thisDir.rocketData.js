@@ -6,9 +6,9 @@ const pageTree = new PageTree({
   outputDir: new URL('../__output', import.meta.url),
 });
 
-await pageTree.restore();
-
 export async function layout(content, data) {
+  await pageTree.restore();
+
   return `<!DOCTYPE html>
   <html lang="en">
   <head>

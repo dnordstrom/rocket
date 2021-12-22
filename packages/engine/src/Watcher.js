@@ -101,28 +101,33 @@ export class Watcher {
     this.acceptPageUpdates = false;
     for (const [sourceFilePath, info] of this._taskQueue) {
       if (info.type === 'create') {
-        await this.renderCallback({ sourceFilePath });
-        await this.createPage(sourceFilePath);
+        const isActiveCounter = 5;
+        await this.renderCallback({ sourceFilePath, isActiveCounter });
+        await this.createPage(sourceFilePath, { isActiveCounter });
       }
       if (info.type === 'update') {
         const isOpenedInBrowser = !!info.webSockets?.size ?? false;
-        await this.renderCallback({ ...info, sourceFilePath, isOpenedInBrowser });
-        await this.updatePage(sourceFilePath);
+        const isActiveCounter = info.isActiveCounter ? info.isActiveCounter - 1 : 0;
+        await this.renderCallback({ ...info, sourceFilePath, isOpenedInBrowser, isActiveCounter });
+        await this.updatePage(sourceFilePath, { isActiveCounter });
       }
       if (info.type === 'delete') {
         await this.deleteCallback({ sourceFilePath });
         await this.deletePage(sourceFilePath);
       }
     }
-    this.doneCallback();
+    await this.doneCallback();
     this._taskQueue.clear();
     this.acceptPageUpdates = true;
   }
 
-  async updatePage(sourceFilePath) {
+  async updatePage(sourceFilePath, options = {}) {
     if (this.pages.has(sourceFilePath)) {
       const page = this.pages.get(sourceFilePath);
       page.jsDependencies = await getJsDependencies(sourceFilePath);
+      if (options.isActiveCounter !== undefined) {
+        page.isActiveCounter = options.isActiveCounter;
+      }
       this.pages.set(sourceFilePath, page);
     } else {
       throw new Error(`Page not found in watch index while trying to update: ${sourceFilePath}`);
@@ -153,8 +158,9 @@ export class Watcher {
     }
   }
 
-  async createPage(sourceFilePath) {
+  async createPage(sourceFilePath, options = {}) {
     const page = {
+      ...options,
       jsDependencies: await getJsDependencies(sourceFilePath),
     };
     this.pages.set(sourceFilePath, page);
@@ -185,5 +191,6 @@ export class Watcher {
     await this?.subscription?.unsubscribe();
     this.pages.clear();
     this._taskQueue.clear();
+    this.acceptPageUpdates = true;
   }
 }

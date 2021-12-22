@@ -230,7 +230,7 @@ export class Engine {
     this.watcher.watchPages(
       async page => {
         await updateRocketHeader(page.sourceFilePath, this.docsDir);
-        if (page.isOpenedInBrowser) {
+        if (page.isOpenedInBrowser || page.isActiveCounter > 0) {
           try {
             await this.renderFile(page.sourceFilePath);
             const sourceRelativeFilePath = path.relative(this.docsDir, page.sourceFilePath);
@@ -242,17 +242,20 @@ export class Engine {
               pageTree.needsAnotherRenderingPass = false;
             }
           } catch (error) {
+            console.log(error);
             await this.writeErrorAsHtmlToOutput(page.sourceFilePath, error);
           }
           setTimeout(() => {
             // TODO: @web/dev-server has a caching bug it seems need to wait some time before reloading
-            for (const webSocket of page.webSockets) {
-              webSocket.send(
-                JSON.stringify({
-                  type: 'import',
-                  data: { importPath: 'data:text/javascript,window.location.reload()' },
-                }),
-              );
+            if (page.isOpenedInBrowser) {
+              for (const webSocket of page.webSockets) {
+                webSocket.send(
+                  JSON.stringify({
+                    type: 'import',
+                    data: { importPath: 'data:text/javascript,window.location.reload()' },
+                  }),
+                );
+              }
             }
           }, 110);
         }
@@ -292,6 +295,12 @@ export class Engine {
   }
 
   async writeErrorAsHtmlToOutput(sourceFilePath, error) {
+    function escape(input) {
+      let escaped = input;
+      escaped = escaped.replace(/</g, '&gt;');
+      escaped = escaped.replace(/>/g, '&lt;');
+      return escaped;
+    }
     const outputFilePath = this.getOutputFilePath(sourceFilePath);
     const errorHtml = `
       <html>
@@ -300,7 +309,7 @@ export class Engine {
         </head>
         <body>
           <h1>${error.message}</h1>
-          <pre>${error.stack}</pre>
+          <pre>${escape(error.stack)}</pre>
         </body>
       </html>
     `;
@@ -325,6 +334,7 @@ export class Engine {
   }
 
   async renderFile(filePath, { writeFileToDisk = true } = {}) {
-    return await renderViaWorker({ filePath, outputDir: this.outputDir, writeFileToDisk });
+    const result = await renderViaWorker({ filePath, outputDir: this.outputDir, writeFileToDisk });
+    return result;
   }
 }

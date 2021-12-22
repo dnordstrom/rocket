@@ -307,8 +307,8 @@ describe('Engine start', () => {
     await cleanup();
   });
 
-  it('will render newly created pages as they get opened', async () => {
-    const { readOutput, writeSource, cleanup, engine, deleteSource } = await setupTestEngine(
+  it('directly render newly created pages to get the PageTree Metadata', async () => {
+    const { readOutput, writeSource, cleanup, engine, deleteSource, anEngineEvent } = await setupTestEngine(
       'fixtures/09-watch/06-create-single-page/docs',
     );
     await deleteSource('name.js');
@@ -325,7 +325,7 @@ describe('Engine start', () => {
         'export default `name: "${name}"`;',
       ].join('\n'),
     );
-    await fetch('http://localhost:8000/about/');
+    await anEngineEvent('rocketUpdated');
     expect(readOutput('about/index.html', { format: 'html' })).to.equal(
       [
         '<!DOCTYPE html>',
@@ -397,7 +397,7 @@ describe('Engine start', () => {
     await cleanup();
   });
 
-  it('updates the pageTree on creating a new page', async () => {
+  it('updates the pageTree on creating a new page without needing to open it', async () => {
     const {
       readOutput,
       writeSource,
@@ -405,6 +405,8 @@ describe('Engine start', () => {
       cleanup,
       engine,
       deleteSource,
+      anEngineEvent,
+      setAsOpenedInBrowser,
     } = await setupTestEngine('fixtures/09-watch/09-update-pageTree-on-create/docs');
     await deleteSource('about.rocket.js');
     await writeSource(
@@ -432,6 +434,7 @@ describe('Engine start', () => {
     );
 
     await engine.start();
+    setAsOpenedInBrowser('index.rocket.js');
     await writeSource(
       'about.rocket.js',
       [
@@ -439,7 +442,7 @@ describe('Engine start', () => {
         'export default `<h1>about</h1>`;',
       ].join('\n'),
     );
-    await fetch('http://localhost:8000/about/');
+    await anEngineEvent('rocketUpdated');
     expect(readSource('pageTreeData.rocketGenerated.json')).to.equal(
       [
         '{',
@@ -450,7 +453,7 @@ describe('Engine start', () => {
         '  "level": 0,',
         '  "children": [',
         '    {',
-        '      "title": "Document",',        
+        '      "title": "Document",',
         '      "h1": "components",',
         '      "menuLinkText": "components",',
         '      "url": "/components/",',
@@ -472,6 +475,8 @@ describe('Engine start', () => {
       ].join('\n'),
     );
 
+    // about only got rendered to read the metadata for the PageTree
+    // e.g. it will not include the about page itself
     expect(readOutput('about/index.html', { format: 'html' })).to.equal(
       [
         '<!DOCTYPE html>',
@@ -485,10 +490,33 @@ describe('Engine start', () => {
         '  <body>',
         '    <nav aria-label="site">',
         '      <a href="/components/">components</a>',
-        '      <a href="/about/" aria-current="page">about</a>',
         '    </nav>',
         '',
         '    <h1>about</h1>',
+        '  </body>',
+        '</html>',
+        '',
+      ].join('\n'),
+    );
+
+    // index gets rerendered with the updated PageTree which includes the about page
+    expect(readOutput('index.html', { format: 'html' })).to.equal(
+      [
+        '<!DOCTYPE html>',
+        '<html lang="en">',
+        '  <head>',
+        '    <meta charset="UTF-8" />',
+        '    <meta http-equiv="X-UA-Compatible" content="IE=edge" />',
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+        '    <title>Document</title>',
+        '  </head>',
+        '  <body>',
+        '    <nav aria-label="site">',
+        '      <a href="/components/">components</a>',
+        '      <a href="/about/">about</a>',
+        '    </nav>',
+        '',
+        '    <h1>index</h1>',
         '  </body>',
         '</html>',
         '',
