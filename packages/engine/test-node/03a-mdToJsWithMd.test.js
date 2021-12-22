@@ -106,4 +106,27 @@ describe('mdToJsWithMd', () => {
       ].join('\n'),
     );
   });
+
+  it('escapes \\ in markdown', async () => {
+    const result = mdToJsWithMd(
+      [
+        //
+        '```bash',
+        'cp something/something \\',
+        '   more/about',
+        '```',
+      ].join('\n'),
+    );
+    expect(result).to.equal(
+      [
+        `import { md } from '@rocket/engine';`,
+        `let rocketAutoConvertedMdText = '';`,
+        'rocketAutoConvertedMdText += md`\\`\\`\\`bash`;',
+        'rocketAutoConvertedMdText += md`cp something/something \\\\`;',
+        'rocketAutoConvertedMdText += md`   more/about`;',
+        'rocketAutoConvertedMdText += md`\\`\\`\\``;',
+        `export default rocketAutoConvertedMdText;`,
+      ].join('\n'),
+    );
+  });
 });

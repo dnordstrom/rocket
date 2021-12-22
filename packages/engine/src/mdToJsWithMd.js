@@ -13,7 +13,14 @@ function escapeBackTick(str) {
     if (isMd && char === '}') {
       isMd = true;
     }
-    newStr += isMd && char === '`' ? '\\`' : char;
+    let addChar = char;
+    if (isMd && char === '`') {
+      addChar = '\\`';
+    }
+    if (isMd && char === '\\') {
+      addChar = '\\\\';
+    }
+    newStr += addChar;
   }
   return newStr;
 }
