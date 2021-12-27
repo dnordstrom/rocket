@@ -1,6 +1,6 @@
 # Presets >> Create your Own >> Hooks || 20
 
-Your preset can hook into the rocket lifecycle by specifying a function for `before11ty`. This function runs before 11ty calls it's write method. If it is an async function, Rocket will await it's promise.
+Your preset can hook into the rocket lifecycle by specifying a function for `before11ty`. This function runs before 11ty calls its write method. If it is an async function, Rocket will await its promise.
 
 <!-- prettier-ignore-start -->
 ```js
